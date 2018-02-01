@@ -10,13 +10,11 @@ var app = new Vue({
     data: {
         notes: [],
         selectedNote: null,
+        selectedNoteTag: "",
         emptyNote: { title: "", tags: [], id: 0, versions: [] },
         editView: true
     },
     computed: {
-        selectedNoteTags: function() {
-            return this.selectedNote.tags.join(", ");
-        },
         isEmpty: function() {
             return this.selectedNote === null || this.selectedNote.id == this.emptyNote.id;
         }
@@ -59,6 +57,7 @@ var app = new Vue({
         
         selectNote: function(note) {
             this.selectedNote = note;
+            this.selectedNoteTag = note.tags.join(', ');
         },
 
         getSelectedNoteBody: function() {
@@ -77,7 +76,6 @@ var app = new Vue({
                 tags: [],
                 versions: []
             };
-            console.log(newNote);
             this.notes.push(newNote);
             this.selectNote(newNote);
             this.sortNotes();
@@ -109,6 +107,8 @@ var app = new Vue({
         },
 
         updateSelectedTag: function(event) {
+            console.log(event);
+            console.log(event.target.value);
             this.selectedNote.tags = event.target.value.split(",");
         },
 

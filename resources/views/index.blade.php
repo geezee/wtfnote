@@ -27,7 +27,7 @@
                                     <h2><span class="oi" data-glyph="bolt" v-if="note.isPinned"></span> @{{ note.title }}</h2>
                                     <p>Test paragraph</p>
                                     <span v-for="tag in note.tags">
-                                        <span class="badge badge-light">@{{ tag }}</span>
+                                        <span class="badge badge-dark">@{{ tag }}</span>
                                     </span>
                                 </li>
                             </ul>
@@ -52,7 +52,7 @@
                             <div class="info-window">
                                 Created (insert date here)
                             </div>
-                            <button type="button" class="btn btn-light" v-if="!isEmpty">
+                            <button type="button" class="btn btn-light disabled" v-if="!isEmpty">
                                 <span class="oi" data-glyph="timer"></span>
                             </button>
                             <button type="button" class="btn btn-danger" v-on:click="deleteSelectedNote()" v-if="!isEmpty">
@@ -75,7 +75,7 @@
                     </div>
                     <div class="row edit-view" v-show="editView">
                         <input type="text" class="form-control title" v-model="selectedNote.title" placeholder="Title">
-                        <input type="text" class="form-control tags" placeholder="Tags" v-on:keypress="updateSelectedTag">
+                        <input type="text" class="form-control tags" placeholder="Tags" v-on:input="updateSelectedTag" v-model="selectedNoteTag">
                         <div class="content-editor">
                             <textarea class="form-control">@{{ getSelectedNoteBody() }}</textarea>
                         </div>

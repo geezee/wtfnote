@@ -1,6 +1,7 @@
 html, body
     height: 100%
     background: #ffffff
+    overflow-y: hidden
 
 .form-control
     border-radius: 0
@@ -41,11 +42,19 @@ html, body
             cursor: pointer
         h2
             font-size: 1.1em
+            font-weight: bold
             .oi
                 font-size: 0.8em
         p
             color: #666
             font-size: 0.9em
+        .badge
+            margin-right: 10px
+            font-weight: normal
+            font-size: 0.65em
+            padding: 5px 7px
+            &.badge-dark
+                background: #999999
 
 .right
     display: flex
@@ -83,3 +92,4 @@ html, body
             left: 0
             right: 0
             bottom: 0
+            height: 100%
