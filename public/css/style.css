@@ -58,6 +58,12 @@ html, body {
   flex-direction: column; }
   .right .status-bar {
     padding: 10px 0; }
+    .right .status-bar .saving-msg {
+      font-weight: normal;
+      font-size: 0.6em;
+      margin-top: 10px;
+      width: 100%;
+      color: #999; }
   .right .form-control {
     border-radius: 0;
     border: 0;

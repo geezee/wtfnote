@@ -68,16 +68,22 @@
                                 v-on:click="changeToPreviewMode()">
                                 <span class="oi" data-glyph="eye"></span>
                             </button>
+                            <div class="saving-msg" v-show="autoSave.saving">
+                                Saving...
+                            </div>
+                            <div class="saving-msg" v-show="!autoSave.saving && autoSave.timeLastSaved != null">
+                                Last saved @{{ autoSave.timeLastSaved }}
+                            </div>
                         </div>
                         <div class="col-4 text-right">
                             <button type="button" class="btn btn-link">Sign out</button>
                         </div>
                     </div>
                     <div class="row edit-view" v-show="editView">
-                        <input type="text" class="form-control title" v-model="selectedNote.title" placeholder="Title">
-                        <input type="text" class="form-control tags" placeholder="Tags" v-on:input="updateSelectedTag" v-model="selectedNoteTag">
+                        <input type="text" class="form-control title" v-model="selectedNote.title" v-on:input="autoSaveTitle" placeholder="Title">
+                        <input type="text" class="form-control tags" placeholder="Tags" v-on:input="(e) => { updateSelectedTag(e); autoSaveTags(); }" v-model="selectedNoteTag">
                         <div class="content-editor">
-                            <textarea class="form-control">@{{ getSelectedNoteBody() }}</textarea>
+                            <textarea class="form-control" v-bind:value="getSelectedNoteBody()" v-on:input="autoSaveBody"></textarea>
                         </div>
                     </div>
                     <div class="row preview-view" v-show="!editView">

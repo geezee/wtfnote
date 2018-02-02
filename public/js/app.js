@@ -1,10 +1,3 @@
-/**
-TODO:
-1. add timer to autosave
-2. add new note
-3. implement the history control
-4. implement the preview tab
-*/
 var app = new Vue({
     el: "#app",
     data: {
@@ -12,7 +5,13 @@ var app = new Vue({
         selectedNote: null,
         selectedNoteTag: "",
         emptyNote: { title: "", tags: [], id: 0, versions: [] },
-        editView: true
+        editView: true,
+
+        autoSave: {
+            saving: false,
+            timer: null,
+            timeLastSaved: "2 minutes ago"
+        }
     },
     computed: {
         isEmpty: function() {
@@ -20,6 +19,7 @@ var app = new Vue({
         }
     },
     methods: {
+        // TODO remove stub and call actual API
         loadNotes: function() {
             this.notes = [
                 {
@@ -107,9 +107,44 @@ var app = new Vue({
         },
 
         updateSelectedTag: function(event) {
-            console.log(event);
-            console.log(event.target.value);
             this.selectedNote.tags = event.target.value.split(",");
+        },
+
+        autoSaveTemplate: function(preCall, postCall) {
+            var self = this;
+            clearTimeout(this.autoSave.timer);
+            this.autoSave.timer = setTimeout(function() {
+                if (typeof preCall === "function") {
+                    preCall();
+                }
+                self.autoSave.saving = true;
+                // Actual AJAX call here
+                setTimeout(function() {
+                    self.autoSave.saving = false;
+                    self.autoSave.timeLastSaved = "Just now";
+                    if (typeof postCall === "function") {
+                        postCall();
+                    }
+                }, 1000);
+            }, 1000);
+        },
+
+        autoSaveBody: function(event) {
+            var self = this;
+            this.autoSaveTemplate(function() {
+                self.selectedNote.versions.splice(0, 0, {
+                    body: event.target.value,
+                    createdAt: "TODO date here"
+                });
+            });
+        },
+
+        autoSaveTitle: function(event) {
+            this.autoSaveTemplate();
+        },
+
+        autoSaveTags: function(event) {
+            this.autoSaveTemplate();
         },
 
         sortNotes: function() {
