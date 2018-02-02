@@ -50,7 +50,7 @@
                                 <span class="oi" data-glyph="info"></span>
                             </button>
                             <div class="info-window">
-                                Created (insert date here)
+                                Created {{ getCreationDate(selectedNote) }}
                             </div>
                             <button type="button" class="btn btn-light disabled" v-if="!isEmpty">
                                 <span class="oi" data-glyph="timer"></span>

@@ -73,6 +73,14 @@ var app = new Vue({
             }
         },
 
+        getCreationDate: function(note) {
+            if (note.versions.length == 0) {
+                return "now";
+            } else {
+                return note.versions.slice(-1)[0].createdAt;
+            }
+        },
+
         createNewNote: function() {
             this.biggestId++;
             var newNote = {
@@ -147,15 +155,17 @@ var app = new Vue({
                         postCall();
                     }
                 }, 500);
-            }, 3000);
+            }, 1000);
         },
 
         autoSaveBody: function(event) {
             var self = this;
+            var currentDateTokens = new Date().toISOString()
+                .match(/(\d{4}\-\d{2}\-\d{2})T(\d{2}:\d{2}:\d{2})/);
             this.autoSaveTemplate(function() {
                 self.selectedNote.versions.splice(0, 0, {
                     body: event.target.value,
-                    createdAt: "TODO date here"
+                    createdAt: currentDateTokens[1] + " " + currentDateTokens[2]
                 });
             });
         },
