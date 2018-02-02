@@ -6,6 +6,7 @@ var app = new Vue({
         selectedNote: null,
         selectedNoteTag: "",
         emptyNote: { title: "", tags: [], id: 0, versions: [] },
+        biggestId: 0,
         editView: true,
 
         searchQuery: "",
@@ -56,6 +57,7 @@ var app = new Vue({
                     versions: [{ "body": "to be filled later", "createdAt": "2018-01-30 19:00:00" }]
                 }
             ];
+            this.biggestId = this.notes.map(n => n.id).reduce((a,b) => Math.max(a,b));
         },
         
         selectNote: function(note) {
@@ -72,9 +74,9 @@ var app = new Vue({
         },
 
         createNewNote: function() {
+            this.biggestId++;
             var newNote = {
-                id: this.notes.map(note => note.id)
-                        .reduce(a, b => Math.max(a, b))+1,
+                id: JSON.parse(JSON.stringify(this.biggestId)),
                 title: "",
                 tags: [],
                 versions: []
@@ -82,15 +84,23 @@ var app = new Vue({
             this.notes.push(newNote);
             this.selectNote(newNote);
             this.sortNotes();
+            this.queryNotes();
         },
 
         deleteSelectedNote: function() {
             var self = this;
-            this.notes = this.notes.filter(note => note.id !== self.selectedNote.id);
-            if (this.notes.length == 0) {
-                this.selectedNote = this.emptyNote;
+
+            function remove(arr) {
+                return arr.filter(note => note.id !== self.selectedNote.id);
+            }
+
+            this.notes = remove(this.notes);
+            this.displayedNotes = remove(this.displayedNotes);
+
+            if (this.displayedNotes.length == 0) {
+                this.selectNote(JSON.parse(JSON.stringify(this.emptyNote)));
             } else {
-                this.selectedNote = this.notes[0];
+                this.selectNote(this.displayedNotes[0]);
             }
         },
 

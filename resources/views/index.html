@@ -43,7 +43,7 @@
                                 <span class="oi" data-glyph="plus"></span>
                             </button>
                             <button type="button" class="btn" v-on:click="toggleSelectedNotePin()"
-                                v-bind:class="{ 'btn-success': selectedNote.isPinned, 'btn-light': !selectedNote.isPinned }">
+                                v-bind:class="{ 'btn-success': selectedNote.isPinned, 'btn-light': !selectedNote.isPinned }" v-if="!isEmpty">
                                 <span class="oi" data-glyph="bolt"></span>
                             </button>
                             <button type="button" class="btn btn-light" id="info-button" v-if="!isEmpty">
