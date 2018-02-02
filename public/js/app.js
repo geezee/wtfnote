@@ -43,7 +43,7 @@ var app = new Vue({
                     title: "Leprous",
                     isPinned: false,
                     tags: ["prog-metal", "music"],
-                    versions: [{ "body": "Malina is a nice album", "createdAt": "2018-01-28 19:00:00" }]
+                    versions: [{ "body": "Malina is a nice album\nSo is Coal\nI like Leprous!", "createdAt": "2018-01-28 19:00:00" }]
                 },
                 {
                     id: 3,
@@ -110,6 +110,16 @@ var app = new Vue({
             this.selectedNote.tags = event.target.value.split(",");
         },
 
+        getNoteBodyPreview: function(note) {
+            if (note.versions.length == 0 || note.versions[0].body == null) {
+                return "";
+            }
+            var line = note.versions[0].body.split('\n')[0];
+            if (line.length > 30) {
+                return line.substring(0, 30)+"...";
+            } else return line;
+        },
+
         autoSaveTemplate: function(preCall, postCall) {
             var self = this;
             clearTimeout(this.autoSave.timer);
@@ -125,8 +135,8 @@ var app = new Vue({
                     if (typeof postCall === "function") {
                         postCall();
                     }
-                }, 1000);
-            }, 1000);
+                }, 500);
+            }, 3000);
         },
 
         autoSaveBody: function(event) {
