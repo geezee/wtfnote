@@ -12,5 +12,5 @@
 */
 
 Route::get('/', function () {
-    return view('index');
+    return response()->file(resource_path().'/views/index.html');
 });
