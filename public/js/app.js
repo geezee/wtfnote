@@ -88,6 +88,11 @@ var app = new Vue({
             }
         },
 
+        getHTML: function() {
+            var converter = new showdown.Converter();
+            return converter.makeHtml(this.getSelectedNoteBody());
+        },
+
         getSelectedVersionDate: function() {
             return this.selectedNote.versions[this.selectedNoteVersion].createdAt;
         },
@@ -136,6 +141,7 @@ var app = new Vue({
         },
 
         changeToPreviewMode: function() {
+            this.$nextTick(_ => MathJax.Hub.Queue(["Typeset", MathJax.Hub]));
             this.editView = false;
         },
 
@@ -286,6 +292,7 @@ var app = new Vue({
             });
         }
     },
+
     beforeMount: function() {
         this.loadNotes();
         if (this.notes.length > 0) {
@@ -294,10 +301,6 @@ var app = new Vue({
             this.displayedNotes = this.notes;
         } else {
             this.selectNote(this.emptyNote);
-        }
-    },
-    watch: {
-        selectedNoteVersion: function() {
         }
     }
 });

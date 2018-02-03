@@ -7,6 +7,7 @@
      <link rel="stylesheet" href="css/open-iconic.css">
      <link rel="stylesheet" href="css/style.css">
      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
     </head>
 
     <body>
@@ -95,11 +96,17 @@
             <input type="text" class="form-control title" v-model="selectedNote.title" v-on:input="autoSaveTitle" placeholder="Title">
             <input type="text" class="form-control tags" placeholder="Tags" v-on:input="(e) => { updateSelectedTag(e); autoSaveTags(); }" v-model="selectedNoteTag">
             <div class="content-editor">
+                $$ \frac{1}{2} $$
              <textarea class="form-control" v-bind:value="getSelectedNoteBody()" v-on:input="autoSaveBody"></textarea>
             </div>
         </div>
         <div class="row preview-view" v-show="!editView">
-            We will preview here
+            <div class="title">
+                {{ selectedNote.title }}
+            </div>
+            <div class="preview-area">
+                <div v-html="getHTML()"></div>
+            </div>
         </div>
        </div>
 
@@ -107,6 +114,7 @@
      </div>
 
      <script src="js/vue.js"></script>
+     <script src="js/showdown.min.js"></script>
      <script src="js/app.js"></script>
     </body>
 </html>
