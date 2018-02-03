@@ -52,7 +52,7 @@
              <div class="info-window">
               Created {{ getCreationDate(selectedNote) }}
              </div>
-             <button type="button" class="btn btn-light disabled" v-if="!isEmpty">
+             <button type="button" class="btn btn-light" v-on:click="toggleVersionControlView()" v-if="!isEmpty">
               <span class="oi" data-glyph="timer"></span>
              </button>
              <button type="button" class="btn btn-danger" v-on:click="deleteSelectedNote()" v-if="!isEmpty">
@@ -80,6 +80,18 @@
             </div>
         </div>
         <div class="row edit-view" v-show="editView">
+            <div class="row versioning" v-show="showVersionControl" style="display: none">
+             <div class="col-4 text-right label">
+                 {{ getSelectedVersionDate() }}
+                 ({{ parseInt(selectedNoteVersion) + 1 }}/{{ selectedNote.versions.length }})
+             </div>
+             <div class="col-4">
+              <input type="range" min="0" v-bind:max="selectedNote.versions.length-1" value="0" v-model="selectedNoteVersion" class="form-control">
+             </div>
+             <div class="col-4">
+              <button type="button" class="btn btn-danger" v-on:click="restoreVersion">Restore</button>
+             </div>
+            </div>
             <input type="text" class="form-control title" v-model="selectedNote.title" v-on:input="autoSaveTitle" placeholder="Title">
             <input type="text" class="form-control tags" placeholder="Tags" v-on:input="(e) => { updateSelectedTag(e); autoSaveTags(); }" v-model="selectedNoteTag">
             <div class="content-editor">

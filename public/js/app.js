@@ -5,10 +5,12 @@ var app = new Vue({
         displayedNotes: [],
         selectedNote: null,
         selectedNoteTag: "",
+        selectedNoteVersion: 0,
         emptyNote: { title: "", tags: [], id: 0, versions: [] },
         biggestId: 0,
         editView: true,
 
+        showVersionControl: false,
         searchQuery: "",
 
         autoSave: {
@@ -19,7 +21,7 @@ var app = new Vue({
     computed: {
         isEmpty: function() {
             return this.selectedNote === null || this.selectedNote.id == this.emptyNote.id;
-        }
+        },
     },
     methods: {
         // TODO remove stub and call actual API
@@ -38,6 +40,10 @@ var app = new Vue({
                         {
                             "body": "Message",
                             "createdAt": "2018-01-25 18:58:00"
+                        },
+                        {
+                            "body": "Mess",
+                            "createdAt": "2018-01-25 18:56:00"
                         }
                     ]
                 },
@@ -58,18 +64,32 @@ var app = new Vue({
             ];
             this.biggestId = this.notes.map(n => n.id).reduce((a,b) => Math.max(a,b));
         },
+
+        toggleVersionControlView: function() {
+            this.showVersionControl = !this.showVersionControl;
+        },
         
         selectNote: function(note) {
             this.selectedNote = note;
+            this.selectedVersionNote = 0;
             this.selectedNoteTag = note.tags.join(', ');
+        },
+
+        restoreVersion: function() {
+            this.selectedNote.versions.splice(0, this.selectedNoteVersion);
+            this.selectedNoteVersion = 0;
         },
 
         getSelectedNoteBody: function() {
             if (this.selectedNote === null || this.selectedNote.versions.length == 0) {
                 return "";
             } else {
-                return this.selectedNote.versions[0].body;
+                return this.selectedNote.versions[this.selectedNoteVersion | 0].body;
             }
+        },
+
+        getSelectedVersionDate: function() {
+            return this.selectedNote.versions[this.selectedNoteVersion].createdAt;
         },
 
         getCreationDate: function(note) {
@@ -273,6 +293,10 @@ var app = new Vue({
             this.displayedNotes = this.notes;
         } else {
             this.selectNote(this.emptyNote);
+        }
+    },
+    watch: {
+        selectedNoteVersion: function() {
         }
     }
 });
