@@ -165,6 +165,7 @@ var app = new Vue({
                 if (typeof preCall === "function") {
                     preCall();
                 }
+                self.selectedNoteVersion = 0;
                 self.autoSave.saving = true;
                 // Actual AJAX call here
                 setTimeout(function() {
