@@ -13,8 +13,7 @@ var app = new Vue({
 
         autoSave: {
             saving: false,
-            timer: null,
-            timeLastSaved: "2 minutes ago"
+            timer: null
         }
     },
     computed: {
@@ -150,7 +149,6 @@ var app = new Vue({
                 // Actual AJAX call here
                 setTimeout(function() {
                     self.autoSave.saving = false;
-                    self.autoSave.timeLastSaved = "Just now";
                     if (typeof postCall === "function") {
                         postCall();
                     }
