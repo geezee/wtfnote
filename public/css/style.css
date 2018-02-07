@@ -21,6 +21,9 @@ html, body {
   margin-left: 50px;
   margin-top: 10px; }
 
+*:hover ~ .info-window {
+  display: block; }
+
 .left {
   overflow-y: scroll; }
   .left .col-12 {

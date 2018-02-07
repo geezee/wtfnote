@@ -94,7 +94,11 @@ var app = new Vue({
         },
 
         getSelectedVersionDate: function() {
-            return this.selectedNote.versions[this.selectedNoteVersion].createdAt;
+            var version = this.selectedNote.versions[this.selectedNoteVersion | 0];
+            if (version == null) {
+                return "now";
+            }
+            return this.selectedNote.versions[this.selectedNoteVersion | 0].createdAt;
         },
 
         getCreationDate: function(note) {
