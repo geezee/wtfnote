@@ -25,7 +25,7 @@ var app = new Vue({
     },
     methods: {
         loadNotes: function(onSuccess) {
-            this.$http.get("/api/note/all").then(request => {
+            this.$http.get("./api/note/all").then(request => {
                 this.notes = request.body;
                 this.biggestId = this.notes.map(n => n.id).reduce((a,b) => Math.max(a,b));
                 onSuccess();
