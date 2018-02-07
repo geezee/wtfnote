@@ -12,7 +12,7 @@ class Note extends Model
     protected $fillable = ["title", "isPinned"];
 
     public function tags() {
-        return $this->belongsToMany("App\Tag", "note_tag", "tag_id", "note_id");
+        return $this->belongsToMany("App\Tag", "note_tag", "note_id", "tag_id");
     }
 
     public function versions() {

@@ -3,7 +3,7 @@ var app = new Vue({
     data: {
         notes: [],
         displayedNotes: [],
-        selectedNote: null,
+        selectedNote: { id: 0, title: "", tags: [], versions: [] },
         selectedNoteTag: "",
         selectedNoteVersion: 0,
         emptyNote: { title: "", tags: [], id: 0, versions: [] },
@@ -24,45 +24,12 @@ var app = new Vue({
         },
     },
     methods: {
-        // TODO remove stub and call actual API
-        loadNotes: function() {
-            this.notes = [
-                {
-                    id: 1,
-                    title: "King Crimson",
-                    isPinned: true,
-                    tags: ["music"],
-                    versions: [
-                        {
-                            "body": "Message 1",
-                            "createdAt": "2018-01-25 19:00:00"
-                        },
-                        {
-                            "body": "Message",
-                            "createdAt": "2018-01-25 18:58:00"
-                        },
-                        {
-                            "body": "Mess",
-                            "createdAt": "2018-01-25 18:56:00"
-                        }
-                    ]
-                },
-                {
-                    id: 2,
-                    title: "Leprous",
-                    isPinned: false,
-                    tags: ["prog-metal", "music"],
-                    versions: [{ "body": "Malina is a nice album\nSo is Coal\nI like Leprous!", "createdAt": "2018-01-28 19:00:00" }]
-                },
-                {
-                    id: 3,
-                    title: "Recipes",
-                    isPinned: false,
-                    tags: ["food"],
-                    versions: [{ "body": "to be filled later", "createdAt": "2018-01-30 19:00:00" }]
-                }
-            ];
-            this.biggestId = this.notes.map(n => n.id).reduce((a,b) => Math.max(a,b));
+        loadNotes: function(onSuccess) {
+            this.$http.get("/api/note/all").then(request => {
+                this.notes = request.body;
+                this.biggestId = this.notes.map(n => n.id).reduce((a,b) => Math.max(a,b));
+                onSuccess();
+            });
         },
 
         toggleVersionControlView: function() {
@@ -102,6 +69,8 @@ var app = new Vue({
         },
 
         getCreationDate: function(note) {
+            if (note == null) return "";
+
             if (note.versions.length == 0) {
                 return "now";
             } else {
@@ -298,13 +267,14 @@ var app = new Vue({
     },
 
     beforeMount: function() {
-        this.loadNotes();
-        if (this.notes.length > 0) {
-            this.sortNotes();
-            this.selectNote(this.notes[0]);
-            this.displayedNotes = this.notes;
-        } else {
-            this.selectNote(this.emptyNote);
-        }
+        this.loadNotes(() => {
+            if (this.notes.length > 0) {
+                this.sortNotes();
+                this.selectNote(this.notes[0]);
+                this.displayedNotes = this.notes;
+            } else {
+                this.selectNote(this.emptyNote);
+            }
+        });
     }
 });

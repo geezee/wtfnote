@@ -13,6 +13,15 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+// Returns all the notes in the database with their versions
+Route::get('/note/all', 'ApiController@getAllNotes');
+
+// Remove a note from the database
+Route::get('/note/delete', function (Request $request) {
+
+});
+
+// Modify a note
+Route::get('/note/edit', function (Request $request) {
+
 });
