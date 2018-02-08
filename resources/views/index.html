@@ -47,13 +47,13 @@
               v-bind:class="{ 'btn-success': selectedNote.isPinned, 'btn-light': !selectedNote.isPinned }" v-if="!isEmpty">
               <span class="oi" data-glyph="bolt"></span>
              </button>
-             <button type="button" class="btn btn-light" id="info-button" v-if="!isEmpty">
+             <button type="button" class="btn btn-light" id="info-button" v-if="!isEmptyNote">
               <span class="oi" data-glyph="info"></span>
              </button>
              <div class="info-window">
               Created {{ getCreationDate(selectedNote) }}
              </div>
-             <button type="button" class="btn btn-light" v-on:click="toggleVersionControlView()" v-if="!isEmpty">
+             <button type="button" class="btn btn-light" v-on:click="toggleVersionControlView()" v-if="!isEmptyNote">
               <span class="oi" data-glyph="timer"></span>
              </button>
              <button type="button" class="btn btn-danger" v-on:click="deleteSelectedNote()" v-if="!isEmpty">

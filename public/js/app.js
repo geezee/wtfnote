@@ -20,12 +20,16 @@ var app = new Vue({
     },
     computed: {
         isEmpty: function() {
-            return this.selectedNote === null || this.selectedNote.id == this.emptyNote.id;
+            return this.selectedNote === null
+                || this.selectedNote.id == this.emptyNote.id;
         },
+        isEmptyNote: function() {
+            return this.isEmpty || this.selectedNote.versions.length == 0;
+        }
     },
     methods: {
         loadNotes: function(onSuccess) {
-            this.$http.get("./api/note/all").then(request => {
+            this.$http.get("./api/note/all?__nocache="+Math.random()).then(request => {
                 this.notes = request.body;
                 this.biggestId = this.notes.map(n => n.id).reduce((a,b) => Math.max(a,b));
                 onSuccess();
@@ -94,6 +98,7 @@ var app = new Vue({
             this.selectNote(newNote);
             this.sortNotes();
             this.queryNotes();
+            this.$http.get(`./api/note/${this.biggestId}/create`);
         },
 
         deleteSelectedNote: function() {
@@ -105,6 +110,8 @@ var app = new Vue({
 
             this.notes = remove(this.notes);
             this.displayedNotes = remove(this.displayedNotes);
+
+            this.$http.get(`./api/note/${this.selectedNote.id}/delete`);
 
             if (this.displayedNotes.length == 0) {
                 this.selectNote(JSON.parse(JSON.stringify(this.emptyNote)));
@@ -125,6 +132,8 @@ var app = new Vue({
         toggleSelectedNotePin: function() {
             this.selectedNote.isPinned = !this.selectedNote.isPinned;
             this.sortNotes();
+            this.$http.get(`./api/note/${this.selectedNote.id}/setPin?pin=`
+                    +this.selectedNote.isPinned);
         },
 
         updateSelectedTag: function(event) {
@@ -142,34 +151,34 @@ var app = new Vue({
         },
 
         autoSaveTemplate: function(preCall, postCall) {
-            var self = this;
             clearTimeout(this.autoSave.timer);
-            this.autoSave.timer = setTimeout(function() {
+            this.autoSave.timer = setTimeout(() => {
                 if (typeof preCall === "function") {
                     preCall();
                 }
-                self.selectedNoteVersion = 0;
-                self.autoSave.saving = true;
+                this.selectedNoteVersion = 0;
+                this.autoSave.saving = true;
                 // Actual AJAX call here
-                setTimeout(function() {
-                    self.autoSave.saving = false;
+                setTimeout(() => {
                     if (typeof postCall === "function") {
                         postCall();
                     }
+                    this.autoSave.saving = false;
                 }, 500);
-            }, 1000);
+            }, 10000);
         },
 
         autoSaveBody: function(event) {
-            var self = this;
-            var currentDateTokens = new Date().toISOString()
-                .match(/(\d{4}\-\d{2}\-\d{2})T(\d{2}:\d{2}:\d{2})/);
-            this.autoSaveTemplate(function() {
-                self.selectedNote.versions.splice(0, 0, {
-                    body: event.target.value,
-                    createdAt: currentDateTokens[1] + " " + currentDateTokens[2]
-                });
-            });
+            this.autoSaveTemplate(
+                () => {
+                    var currentDateTokens = new Date().toISOString()
+                        .match(/(\d{4}\-\d{2}\-\d{2})T(\d{2}:\d{2}:\d{2})/);
+                    this.selectedNote.versions.splice(0, 0, {
+                        body: event.target.value,
+                        createdAt: currentDateTokens[1] + " " + currentDateTokens[2]
+                    })
+                }
+            );
         },
 
         autoSaveTitle: function(event) {

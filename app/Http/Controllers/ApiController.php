@@ -24,4 +24,46 @@ class ApiController extends Controller
             ];
         }));
     }
+
+
+    public function setPin($noteId, Request $request) {
+        $pin = strtolower($request->input("pin")) === "true";
+        $note = App\Note::find($noteId);
+        if (is_null($note)) {
+            return response()->json(makeError("Note does not exist"));
+        }
+
+        $note->isPinned = $pin;
+        $note->save();
+
+        return response()->json(noError());
+    }
+
+
+    public function create($noteId) {
+        $note = App\Note::find($noteId);
+        if (!is_null($note)) {
+            return response()->json(makeError("Note exists"));
+        }
+
+        $note = App\Note::create([ "title" => "", "isPinned" => false ]);
+        $note->id = $noteId;
+        $note->save();
+
+        return response()->json(noError());
+    }
+
+
+    public function delete($noteId) {
+        $note = App\Note::find($noteId);
+        if (is_null($note)) {
+            return response()->json(makeError("Note does not exist"));
+        }
+
+        $note->tags()->detach();
+        App\Content::where("note_id", $noteId)->delete();
+        $note->delete();
+
+        return response()->json(noError());
+    }
 }

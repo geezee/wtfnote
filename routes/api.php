@@ -15,13 +15,6 @@ use Illuminate\Http\Request;
 
 // Returns all the notes in the database with their versions
 Route::get('/note/all', 'ApiController@getAllNotes');
-
-// Remove a note from the database
-Route::get('/note/delete', function (Request $request) {
-
-});
-
-// Modify a note
-Route::get('/note/edit', function (Request $request) {
-
-});
+Route::get('/note/{id}/setPin', 'ApiController@setPin');
+Route::get('/note/{id}/create', 'ApiController@create');
+Route::get('/note/{id}/delete', 'ApiController@delete');
