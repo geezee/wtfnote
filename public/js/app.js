@@ -40,6 +40,10 @@ var app = new Vue({
             this.selectedNote = note;
             this.selectedVersionNote = 0;
             this.selectedNoteTag = note.tags.join(', ');
+
+            if (!this.editView) {
+                this.$nextTick(_ => MathJax.Hub.Queue(["Typeset", MathJax.Hub]));
+            }
         },
 
         restoreVersion: function() {
