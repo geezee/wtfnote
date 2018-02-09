@@ -3,10 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App;
 
 class ApiController extends Controller
 {
+
+    public function __construct() {
+        $this->middleware(function($request, $next) {
+            if(!Auth::check()) return abort(403);
+            else return $next($request);
+        });
+    }
+
     public function getAllNotes() {
         return response()->json(App\Note::all()->map(function($note) {
             return [

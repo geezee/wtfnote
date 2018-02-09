@@ -11,6 +11,7 @@
 |
 */
 
-Route::get('/', function () {
-    return response()->file(resource_path().'/views/index.html');
-});
+Route::post('/login', 'Controller@postLogin');
+Route::get('/login', 'Controller@getLogin')->name('login');
+Route::get('/logout', 'Controller@getLogout');
+Route::get('/', 'Controller@getApplication')->name('home');
