@@ -66,4 +66,40 @@ class ApiController extends Controller
 
         return response()->json(noError());
     }
+
+
+    public function update($noteId, Request $request) {
+        $note = App\Note::find($noteId);
+
+        if (is_null($note)) {
+            return response()->json(makeError("Note does not exist"));
+        }
+
+        $modified = $request->input("modified");
+        $data = $request->input("note");
+
+        if (in_array("title", $modified)) {
+            $note->title = $data["title"];
+            $note->save();
+        }
+
+        if (in_array("tag", $modified)) {
+            $tags = array_map(function ($tag) {
+                $t = App\Tag::firstOrCreate([ "title" => $tag ]);
+                return $t->id;
+            }, $data["tag"]);
+            $note->tags()->detach();
+            $note->tags()->attach($tags);
+        }
+
+        if (in_array("body", $modified)) {
+            $content = App\Content::create([
+                "body" => $data["body"],
+                "note_id" => $note->id,
+                "createdAt" => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        return response()->json($request->input());
+    }
 }

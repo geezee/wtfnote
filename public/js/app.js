@@ -15,7 +15,8 @@ var app = new Vue({
 
         autoSave: {
             saving: false,
-            timer: null
+            timer: null,
+            modified: new Set()
         }
     },
     computed: {
@@ -158,17 +159,34 @@ var app = new Vue({
                 }
                 this.selectedNoteVersion = 0;
                 this.autoSave.saving = true;
-                // Actual AJAX call here
-                setTimeout(() => {
+
+                var payload = {
+                    modified: Array.from(this.autoSave.modified),
+                    note: { }
+                };
+
+                if (this.autoSave.modified.has("title"))
+                    payload.note.title = this.selectedNote.title;
+                if (this.autoSave.modified.has("body"))
+                    payload.note.body = this.getSelectedNoteBody();
+                if (this.autoSave.modified.has("tag"))
+                    payload.note.tag = this.selectedNote.tags;
+
+                var callback = () => {
                     if (typeof postCall === "function") {
                         postCall();
                     }
                     this.autoSave.saving = false;
-                }, 500);
-            }, 10000);
+                    this.autoSave.modified.clear();
+                };
+
+                this.$http.post(`./api/note/${this.selectedNote.id}/update`, payload)
+                    .then(callback);
+            }, 1000);
         },
 
         autoSaveBody: function(event) {
+            this.autoSave.modified.add("body");
             this.autoSaveTemplate(
                 () => {
                     var currentDateTokens = new Date().toISOString()
@@ -182,10 +200,12 @@ var app = new Vue({
         },
 
         autoSaveTitle: function(event) {
+            this.autoSave.modified.add("title");
             this.autoSaveTemplate();
         },
 
         autoSaveTags: function(event) {
+            this.autoSave.modified.add("tag");
             this.autoSaveTemplate();
         },
 

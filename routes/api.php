@@ -18,3 +18,4 @@ Route::get('/note/all', 'ApiController@getAllNotes');
 Route::get('/note/{id}/setPin', 'ApiController@setPin');
 Route::get('/note/{id}/create', 'ApiController@create');
 Route::get('/note/{id}/delete', 'ApiController@delete');
+Route::post('/note/{id}/update', 'ApiController@update');
