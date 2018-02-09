@@ -52,6 +52,9 @@ var app = new Vue({
         },
 
         restoreVersion: function() {
+            this.$http.post(`./api/note/${this.selectedNote.id}/restore`, {
+                version: this.selectedNoteVersion
+            });
             this.selectedNote.versions.splice(0, this.selectedNoteVersion);
             this.selectedNoteVersion = 0;
         },
@@ -133,8 +136,9 @@ var app = new Vue({
         toggleSelectedNotePin: function() {
             this.selectedNote.isPinned = !this.selectedNote.isPinned;
             this.sortNotes();
-            this.$http.get(`./api/note/${this.selectedNote.id}/setPin?pin=`
-                    +this.selectedNote.isPinned);
+            this.$http.post(`./api/note/${this.selectedNote.id}/setPin`, {
+                pin: this.selectedNote.isPinned
+            });
         },
 
         updateSelectedTag: function(event) {

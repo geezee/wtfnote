@@ -27,7 +27,7 @@ class ApiController extends Controller
 
 
     public function setPin($noteId, Request $request) {
-        $pin = strtolower($request->input("pin")) === "true";
+        $pin = $request->input("pin") == "true";
         $note = App\Note::find($noteId);
         if (is_null($note)) {
             return response()->json(makeError("Note does not exist"));
@@ -101,5 +101,27 @@ class ApiController extends Controller
         }
 
         return response()->json($request->input());
+    }
+
+
+    public function restore($noteId, Request $request) {
+        $note = App\Note::find($noteId);
+        $version = $request->input("version", 0);
+
+        if (is_null($note)) {
+            return response()->json(makeError("Note does not exist"));
+        }
+
+        if ($version <= 0) {
+            return response()->json(noError());
+        }
+
+        $index = $note->versions->count() - $version - 1;
+
+        $note->versions->slice($index+1)->each(function ($version) {
+            $version->delete();
+        });
+
+        return response()->json(noError());
     }
 }
