@@ -34,6 +34,8 @@ var app = new Vue({
                 this.notes = request.body;
                 this.biggestId = this.notes.map(n => n.id).reduce((a,b) => Math.max(a,b));
                 onSuccess();
+            }, request => {
+                window.location.href = "./login";
             });
         },
 
