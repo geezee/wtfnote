@@ -19,6 +19,18 @@ html, body
         outline: none
         box-shadow: none
 
+.modal
+    background: rgba(0, 0, 0, 0.4)
+    .modal-content
+        margin-top: 20%
+    &.open
+        display: block
+        opacity: 1
+    &.close
+        display: none
+        opacity: 0
+
+
 #app, #app > .row, .left, .right
     min-height: 100%
     height: 100%

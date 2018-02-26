@@ -17,7 +17,15 @@ var app = new Vue({
             saving: false,
             timer: null,
             modified: new Set()
-        }
+        },
+
+        modal: {
+            visible: false,
+            text: "",
+            button: "",
+            possibleModes: { DELETE : 0, RESTORE: 1 },
+            mode: null
+       }
     },
     computed: {
         isEmpty: function() {
@@ -54,11 +62,13 @@ var app = new Vue({
         },
 
         restoreVersion: function() {
-            this.$http.post(`./api/note/${this.selectedNote.id}/restore`, {
-                version: this.selectedNoteVersion
-            });
-            this.selectedNote.versions.splice(0, this.selectedNoteVersion);
-            this.selectedNoteVersion = 0;
+            this.modal.visible = true;
+            this.modal.button = "Restore";
+            this.modal.mode = this.modal.possibleModes.RESTORE;
+
+            this.modal.text = "Are you sure you want to restore the note " +
+                "<strong>" + this.selectedNote.title + "</strong> to the version of " +
+                this.selectedNote.versions[this.selectedNoteVersion].createdAt;
         },
 
         getSelectedNoteBody: function() {
@@ -108,22 +118,12 @@ var app = new Vue({
         },
 
         deleteSelectedNote: function() {
-            var self = this;
+            this.modal.visible = true;
+            this.modal.button = "Delete";
+            this.modal.mode = this.modal.possibleModes.DELETE;
 
-            function remove(arr) {
-                return arr.filter(note => note.id !== self.selectedNote.id);
-            }
-
-            this.notes = remove(this.notes);
-            this.displayedNotes = remove(this.displayedNotes);
-
-            this.$http.get(`./api/note/${this.selectedNote.id}/delete`);
-
-            if (this.displayedNotes.length == 0) {
-                this.selectNote(JSON.parse(JSON.stringify(this.emptyNote)));
-            } else {
-                this.selectNote(this.displayedNotes[0]);
-            }
+            this.modal.text = "Are you sure you want to delete the note "
+                + "<strong>" + this.selectedNote.title + "</strong>";
         },
 
         changeToEditMode: function() {
@@ -302,6 +302,34 @@ var app = new Vue({
                          || cond(note => note.title)(token)
                          || note.tags.some(tag => tag.startsWith(token)))
             });
+        },
+
+        executeModal: function() {
+            if (this.modal.mode == this.modal.possibleModes.DELETE) {
+                remove = arr => arr.filter(note => note.id !== this.selectedNote.id);
+
+                this.notes = remove(this.notes);
+                this.displayedNotes = remove(this.displayedNotes);
+
+                this.$http.get(`./api/note/${this.selectedNote.id}/delete`);
+
+                if (this.displayedNotes.length == 0) {
+                    this.selectNote(JSON.parse(JSON.stringify(this.emptyNote)));
+                } else {
+                    this.selectNote(this.displayedNotes[0]);
+                }
+            } else if (this.modal.mode == this.modal.possibleModes.RESTORE) {
+                var versionNumber = this.selectedNoteVersion;
+                this.selectedNoteVersion = 0;
+
+                this.$http.post(`./api/note/${this.selectedNote.id}/restore`, {
+                    version: versionNumber
+                });
+
+                this.selectedNote.versions.splice(0, versionNumber);
+            }
+
+            this.modal.visible = false;
         }
     },
 

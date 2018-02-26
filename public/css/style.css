@@ -18,6 +18,17 @@ html, body {
   outline: none;
   box-shadow: none; }
 
+.modal {
+  background: rgba(0, 0, 0, 0.4); }
+  .modal .modal-content {
+    margin-top: 20%; }
+  .modal.open {
+    display: block;
+    opacity: 1; }
+  .modal.close {
+    display: none;
+    opacity: 0; }
+
 #app, #app > .row, .left, .right {
   min-height: 100%;
   height: 100%; }

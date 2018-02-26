@@ -12,6 +12,17 @@
 
     <body>
      <div id="app" class="container-fluid">
+      <div class="modal fade" v-bind:class="{ open: modal.visible, close: !modal.visible }">
+        <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-body" v-html="modal.text"></div>
+              <div class="modal-footer">
+                <button class="btn btn-secondary" v-on:click="modal.visible = false;">Cancel</button>
+                <button class="btn btn-danger" v-on:click="executeModal()">{{ modal.button }}</button>
+              </div>
+           </div>
+        </div>
+      </div>
       <div class="row">
 
        <div class="col-3 left">
