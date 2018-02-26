@@ -12,7 +12,7 @@
         <div class="container">
             <div class="row">
                 <div class="col align-self-center">
-                    <form action="/login" method="POST">
+                    <form action="./login" method="POST">
                     <div class="input-group mb-3">
                         <input type="hidden" name="email" value="{{ env('APP_NAME') }}">
                         <input type="password" name="password" class="form-control"

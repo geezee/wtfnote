@@ -20,7 +20,6 @@ the release of 1.0-beta.
 - A very simple interface with almost everything being one click away.
 
 ## Milestones for 1.0
-- Add warnings before deleting/restoring a note.
 - Add a hint on how to use the search bar.
 - Add tooltips to all buttons.
 - Add the ability to change the password.
