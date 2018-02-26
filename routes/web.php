@@ -15,3 +15,5 @@ Route::post('/login', 'Controller@postLogin');
 Route::get('/login', 'Controller@getLogin')->name('login');
 Route::get('/logout', 'Controller@getLogout');
 Route::get('/', 'Controller@getApplication')->name('home');
+Route::get('/settings', 'Controller@getSettings');
+Route::post('/settings', 'Controller@changePassword');

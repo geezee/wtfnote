@@ -87,6 +87,10 @@ html, body {
       margin-top: 10px;
       width: 100%;
       color: #999; }
+    .right .status-bar .links a {
+      margin-left: 20px; }
+      .right .status-bar .links a:first-child {
+        margin-left: 0; }
   .right .versioning .label {
     color: #333;
     font-size: 0.8em;

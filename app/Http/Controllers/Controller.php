@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Redirect;
 
 use App;
 
@@ -17,7 +18,7 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     public function getLogin() {
-        return view("login");
+        return view('login');
     }
 
     public function postLogin(Request $request) {
@@ -42,4 +43,41 @@ class Controller extends BaseController
             return response()->file(resource_path().'/views/index.html');
         }
     }
+
+    public function getSettings() {
+        if (!Auth::check()) {
+            return redirect('./login');
+        } else {
+            return view('settings');
+        }
+    }
+
+	public function changePassword(Request $request) {
+        if (!Auth::check()) {
+            return redirect('./login');
+        }
+
+		$oldpass = $request->input('oldpass');
+		$newpass = $request->input('newpass');
+        $confpass = $request->input('confpass');
+
+        $user = App\User::where('name', env('APP_NAME'))->get()[0];
+
+        if(!\Hash::check($oldpass, $user->password)) {
+            return Redirect::back()->withErrors(['Current password is incorrect']);
+        }
+
+        if (strlen($newpass) < 8) {
+            return Redirect::back()->withErrors(['Password must be at least 8 characters long']);
+        }
+
+        if ($newpass != $confpass) {
+            return Redirect::back()->withErrors(['New passwords do not match']);
+        }
+
+        $user->password = \Hash::make($newpass);
+        $user->save();
+
+        return Redirect::back();
+	}
 }
