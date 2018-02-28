@@ -6,21 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class Note extends Model
 {
-    public $table = "note";
+    public $table = 'note';
     public $timestamps = false;
 
-    protected $fillable = ["id", "title", "isPinned"];
+    protected $fillable = ['id', 'title', 'isPinned'];
 
     public function tags() {
-        return $this->belongsToMany("App\Tag", "note_tag", "note_id", "tag_id");
+        return $this->belongsToMany('App\Tag', 'note_tag', 'note_id', 'tag_id');
     }
 
     public function versions() {
-        return $this->hasMany("App\Content", "note_id");
+        return $this->hasMany('App\Content', 'note_id');
     }
 
-    // TODO: setNewestVersionAttribute
-    // TODO: getNewestVersionAttribute
-    // TODO: getVersionNumberAttribute
-    // TODO: getCreatedAtAttribute
+    public function attachments() {
+        return $this->hasMany('App\Attachment', 'note_id');
+    }
 }

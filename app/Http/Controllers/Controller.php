@@ -7,6 +7,7 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Redirect;
@@ -80,4 +81,21 @@ class Controller extends BaseController
 
         return Redirect::back();
 	}
+
+    public function uploadFile(Request $request) {
+        $note = App\Note::find($request->input('note_id'));
+
+        if ($note == null) return "Note does not exist";
+
+        $file = $request->file('file');
+        $path = $ret = Storage::putFileAs($note->id, $file, $file->getClientOriginalName());
+
+        $attachment = App\Attachment::create([
+            'note_id' => $note->id,
+            'uri' => 'attachments/'.$path,
+            'createdAt' => date('Y-m-d H:i:s')
+        ]);
+
+        return Redirect::back();
+    }
 }

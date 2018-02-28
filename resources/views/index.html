@@ -6,12 +6,14 @@
      <link rel="stylesheet" href="css/bootstrap.css">
      <link rel="stylesheet" href="css/open-iconic.css">
      <link rel="stylesheet" href="css/style.css">
+     <link rel="stylesheet" href="css/asciinema-player.css">
      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
      <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
     </head>
 
     <body>
      <div id="app" class="container-fluid">
+
       <div class="modal fade" v-bind:class="{ open: modal.visible, close: !modal.visible }">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -23,6 +25,40 @@
            </div>
         </div>
       </div>
+
+
+      <div class="modal attachment fade" v-bind:class="{ open: attachmentWindowVisible, close: !attachmentWindowVisible }">
+        <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <span class="oi" data-glyph="x" v-on:click="hideAttachmentWindow()"></span>
+              </div>
+              <div class="modal-body">
+                  <ul v-for="(uri, index) in selectedNote.attachments">
+                      <li>
+                          <a v-bind:href="uri" target="_blank" class="uri">{{ uri.split('/').slice(-1)[0] }}</a>
+                          <span class="oi delete" data-glyph="x" style="float: right" v-on:click="deleteAttachment(index)"></span>
+                      </li>
+                  </ul>
+              </div>
+              <div class="modal-footer">
+                  <form action="./upload" enctype="multipart/form-data" method="post">
+                      <div class="row">
+                          <div class="col-6">
+                              <input type="hidden" name="note_id" v-bind:value="selectedNote.id">
+                              <input type="file" name="file" style="width: 100%">
+                          </div>
+                          <div class="col-6 text-right">
+                              <input type="submit" class="btn btn-warning" value="Upload">
+                          </div>
+                      </div>
+                  </form>
+              </div>
+           </div>
+        </div>
+      </div>
+
+
       <div class="row">
 
        <div class="col-3 left">
@@ -51,8 +87,12 @@
        <div class="col-9 right">
         <div class="row status-bar">
             <div class="col-4">
-             <button type="button" class="btn btn-primary" v-on:click="createNewNote()">
+             <button type="button" class="btn btn-info" v-on:click="createNewNote()">
               <span class="oi" data-glyph="plus"></span>
+             </button>
+             <button type="button" class="btn" v-on:click="showAttachmentWindow()"
+                v-bind:class="{ 'btn-warning': selectedNote.hasAttachment, 'btn-light': !selectedNote.hasAttachment }" v-if="!isEmpty">
+                <span class="oi" data-glyph="paperclip"></span>
              </button>
              <button type="button" class="btn" v-on:click="toggleSelectedNotePin()"
               v-bind:class="{ 'btn-success': selectedNote.isPinned, 'btn-light': !selectedNote.isPinned }" v-if="!isEmpty">
@@ -62,7 +102,7 @@
               <span class="oi" data-glyph="info"></span>
              </button>
              <div class="info-window">
-              Created {{ getCreationDate(selectedNote) }}
+              Created {{ selectedNote.createdAt }}
              </div>
              <button type="button" class="btn btn-light" v-on:click="toggleVersionControlView()" v-if="!isEmptyNote">
               <span class="oi" data-glyph="timer"></span>
@@ -72,11 +112,11 @@
              </button>
             </div>
             <div class="col-4 text-center">
-             <button type='button' class='btn' v-bind:class="{ 'btn-primary': editView, 'btn-light': !editView }"
+             <button type='button' class='btn' v-bind:class="{ 'btn-info': editView, 'btn-light': !editView }"
               v-on:click="changeToEditMode()">
               <span class="oi" data-glyph="pencil"></span>
              </button>
-             <button type="button" class="btn" v-bind:class="{ 'btn-primary': !editView, 'btn-light': editView }"
+             <button type="button" class="btn" v-bind:class="{ 'btn-info': !editView, 'btn-light': editView }"
               v-on:click="changeToPreviewMode()">
               <span class="oi" data-glyph="eye"></span>
              </button>
@@ -129,5 +169,7 @@
      <script src="js/vue-resource.js"></script>
      <script src="js/showdown.min.js"></script>
      <script src="js/app.js"></script>
+
+     <script src="js/asciinema-player.js"></script>
     </body>
 </html>

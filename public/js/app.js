@@ -6,9 +6,10 @@ var app = new Vue({
         selectedNote: { id: 0, title: "", tags: [], versions: [] },
         selectedNoteTag: "",
         selectedNoteVersion: 0,
-        emptyNote: { title: "", tags: [], id: 0, versions: [] },
+        emptyNote: { title: "", tags: [], id: 0, attachments: [], versions: [] },
         biggestId: 0,
         editView: true,
+        attachmentWindowVisible: false,
 
         showVersionControl: false,
         searchQuery: "",
@@ -52,9 +53,13 @@ var app = new Vue({
         },
         
         selectNote: function(note) {
-            this.selectedNote = note;
             this.selectedVersionNote = 0;
             this.selectedNoteTag = note.tags.join(', ');
+
+            this.selectedNote = note;
+            this.selectedNote.hasAttachment = note.attachments.length > 0;
+            this.selectedNote.createdAt = note.versions.length == 0 ?
+                "" : note.versions.slice(-1)[0].createdAt;
 
             if (!this.editView) {
                 this.$nextTick(_ => MathJax.Hub.Queue(["Typeset", MathJax.Hub]));
@@ -81,7 +86,12 @@ var app = new Vue({
 
         getHTML: function() {
             var converter = new showdown.Converter();
-            return converter.makeHtml(this.getSelectedNoteBody());
+            return converter.makeHtml(this.getSelectedNoteBody())
+                .replace(/\$asciinema\([^\)\(]+\)/g, match => {
+                    var filename = match.substring(11).slice(0, -1);
+                    var path = ['./attachments', this.selectedNote.id, filename].join('/');
+                    return `<asciinema-player src="${path}"></asciinema-player>`;
+                });
         },
 
         getSelectedVersionDate: function() {
@@ -108,13 +118,14 @@ var app = new Vue({
                 id: JSON.parse(JSON.stringify(this.biggestId)),
                 title: "",
                 tags: [],
+                attachments: [],
                 versions: []
             };
             this.notes.push(newNote);
             this.selectNote(newNote);
             this.sortNotes();
             this.queryNotes();
-            this.$http.get(`./api/note/${this.biggestId}/create`);
+            this.$http.get(`./api/note/${this.biggestId}/create`).then(_ => {});
         },
 
         deleteSelectedNote: function() {
@@ -330,6 +341,24 @@ var app = new Vue({
             }
 
             this.modal.visible = false;
+        },
+
+        showAttachmentWindow: function() {
+            this.attachmentWindowVisible = true;
+        },
+
+        hideAttachmentWindow: function() {
+            this.attachmentWindowVisible = false;
+        },
+
+        uploadAttachment: function() {
+
+        },
+
+        deleteAttachment: function(index) {
+            this.$http.post('/api/attachment/delete', {
+                uri: this.selectedNote.attachments[index],
+            }).then(request => Vue.delete(this.selectedNote.attachments, index));
         }
     },
 

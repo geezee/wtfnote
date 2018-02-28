@@ -21,4 +21,5 @@ Route::group(['middleware' => ['web']], function() {
     Route::post('/note/{id}/setPin', 'ApiController@setPin');
     Route::post('/note/{id}/update', 'ApiController@update');
     Route::post('/note/{id}/restore', 'ApiController@restore');
+    Route::post('/attachment/delete', 'ApiController@deleteAttachment');
 });

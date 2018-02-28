@@ -19,15 +19,16 @@ class ApiController extends Controller
     public function getAllNotes() {
         return response()->json(App\Note::all()->map(function($note) {
             return [
-                "id" => $note->id,
-                "title" => $note->title,
-                "isPinned" => (bool) $note->isPinned,
-                "tags" => $note->tags->pluck("title"),
-                "versions" => $note->versions()->orderBy('createdAt', 'desc')
+                'id' => $note->id,
+                'title' => $note->title,
+                'isPinned' => (bool) $note->isPinned,
+                'tags' => $note->tags->pluck('title'),
+                'attachments' => $note->attachments->pluck('uri'),
+                'versions' => $note->versions()->orderBy('createdAt', 'desc')
                     ->get()->map(function($version) {
                         return [
-                            "body" => $version->body,
-                            "createdAt" => $version->createdAt
+                            'body' => $version->body,
+                            'createdAt' => $version->createdAt
                         ];
                 })
             ];
@@ -36,10 +37,10 @@ class ApiController extends Controller
 
 
     public function setPin($noteId, Request $request) {
-        $pin = $request->input("pin") == "true";
+        $pin = $request->input('pin') == 'true';
         $note = App\Note::find($noteId);
         if (is_null($note)) {
-            return response()->json(makeError("Note does not exist"));
+            return response()->json(makeError('Note does not exist'));
         }
 
         $note->isPinned = $pin;
@@ -52,10 +53,10 @@ class ApiController extends Controller
     public function create($noteId) {
         $note = App\Note::find($noteId);
         if (!is_null($note)) {
-            return response()->json(makeError("Note exists"));
+            return response()->json(makeError('Note exists'));
         }
 
-        $note = App\Note::create([ "title" => "", "isPinned" => false ]);
+        $note = App\Note::create([ 'title' => '', 'isPinned' => false ]);
         $note->id = $noteId;
         $note->save();
 
@@ -66,11 +67,11 @@ class ApiController extends Controller
     public function delete($noteId) {
         $note = App\Note::find($noteId);
         if (is_null($note)) {
-            return response()->json(makeError("Note does not exist"));
+            return response()->json(makeError('Note does not exist'));
         }
 
         $note->tags()->detach();
-        App\Content::where("note_id", $noteId)->delete();
+        App\Content::where('note_id', $noteId)->delete();
         $note->delete();
 
         return response()->json(noError());
@@ -81,31 +82,31 @@ class ApiController extends Controller
         $note = App\Note::find($noteId);
 
         if (is_null($note)) {
-            return response()->json(makeError("Note does not exist"));
+            return response()->json(makeError('Note does not exist'));
         }
 
-        $modified = $request->input("modified");
-        $data = $request->input("note");
+        $modified = $request->input('modified');
+        $data = $request->input('note');
 
-        if (in_array("title", $modified)) {
-            $note->title = $data["title"];
+        if (in_array('title', $modified)) {
+            $note->title = $data['title'];
             $note->save();
         }
 
-        if (in_array("tag", $modified)) {
+        if (in_array('tag', $modified)) {
             $tags = array_map(function ($tag) {
-                $t = App\Tag::firstOrCreate([ "title" => $tag ]);
+                $t = App\Tag::firstOrCreate([ 'title' => $tag ]);
                 return $t->id;
-            }, $data["tag"]);
+            }, $data['tag']);
             $note->tags()->detach();
             $note->tags()->attach($tags);
         }
 
-        if (in_array("body", $modified)) {
+        if (in_array('body', $modified)) {
             $content = App\Content::create([
-                "body" => $data["body"],
-                "note_id" => $note->id,
-                "createdAt" => date('Y-m-d H:i:s')
+                'body' => $data['body'],
+                'note_id' => $note->id,
+                'createdAt' => date('Y-m-d H:i:s')
             ]);
         }
 
@@ -115,10 +116,10 @@ class ApiController extends Controller
 
     public function restore($noteId, Request $request) {
         $note = App\Note::find($noteId);
-        $version = $request->input("version", 0);
+        $version = $request->input('version', 0);
 
         if (is_null($note)) {
-            return response()->json(makeError("Note does not exist"));
+            return response()->json(makeError('Note does not exist'));
         }
 
         if ($version <= 0) {
@@ -131,6 +132,12 @@ class ApiController extends Controller
             $version->delete();
         });
 
+        return response()->json(noError());
+    }
+
+    public function deleteAttachment(Request $request) {
+        $uri = $request->input('uri');
+        App\Attachment::where('uri', $uri)->delete();
         return response()->json(noError());
     }
 }
