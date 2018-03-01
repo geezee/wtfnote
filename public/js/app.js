@@ -144,6 +144,7 @@ var app = new Vue({
         changeToPreviewMode: function() {
             this.$nextTick(_ => MathJax.Hub.Queue(["Typeset", MathJax.Hub]));
             this.editView = false;
+            this.showVersionControl = false;
         },
 
         toggleSelectedNotePin: function() {
@@ -155,7 +156,7 @@ var app = new Vue({
         },
 
         updateSelectedTag: function(event) {
-            this.selectedNote.tags = event.target.value.split(",");
+            this.selectedNote.tags = event.target.value.split(/\s*,\s*/);
         },
 
         getNoteBodyPreview: function(note) {
@@ -163,9 +164,13 @@ var app = new Vue({
                 return "";
             }
             var line = note.versions[0].body.split('\n')[0];
-            if (line.length > 30) {
-                return line.substring(0, 30)+"...";
+            if (line.length > 100) {
+                return line.substring(0, 100)+"...";
             } else return line;
+        },
+
+        getNoteTitlePreview: function(note) {
+            return note.title.length < 25 ? note.title : note.title.substring(0, 25).replace(/\s*$/, '')+'..';
         },
 
         autoSaveTemplate: function(preCall, postCall) {

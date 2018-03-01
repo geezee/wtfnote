@@ -1,15 +1,30 @@
+/* Theme Receitas4 is from
+ * https://color.adobe.com/Receitas-4-color-theme-10486784/
+ */
+@import url("https://fonts.googleapis.com/css?family=Crimson+Text");
 html, body {
   height: 100%;
-  background: #ffffff;
-  overflow-y: hidden; }
+  background: #f9fcfd;
+  overflow-y: hidden;
+  font-family: "Computer Modern Typewriter", sans-serif; }
+
+a {
+  color: #2474A6; }
 
 #login .container {
-  margin-top: 20%; }
+  margin-top: 20%;
+  max-width: 300px; }
   #login .container input[type=submit] {
     margin-top: 20px;
     font-size: 1em; }
 #login form {
   width: 100%; }
+#login h6 {
+  font-size: 12px;
+  color: #666; }
+#login h1 {
+  font-size: 32px;
+  margin-bottom: 0; }
 
 .form-control {
   border-radius: 0; }
@@ -21,6 +36,7 @@ html, body {
 .modal {
   background: rgba(0, 0, 0, 0.4); }
   .modal .modal-content {
+    border-radius: 0;
     margin-top: 20%; }
   .modal.open {
     display: block;
@@ -28,6 +44,9 @@ html, body {
   .modal.close {
     display: none;
     opacity: 0; }
+  .modal .modal-footer .btn {
+    padding: 3px 5px;
+    font-size: 0.8em; }
 
 .attachment.modal ul {
   margin: 0;
@@ -68,48 +87,86 @@ html, body {
   display: block; }
 
 .left {
-  overflow-y: scroll; }
+  overflow-y: scroll;
+  max-width: 300px; }
   .left .col-12 {
     padding: 0; }
   .left .search .form-control {
     border: 0; }
   .left .list-group-item {
     border-radius: 0;
-    border-right: 0;
-    border-left: 0; }
+    border: 0;
+    background: #f7fbfc; }
     .left .list-group-item:hover, .left .list-group-item.focused {
-      background: #f0f0f0;
+      background: #ecf5f7;
       cursor: pointer; }
     .left .list-group-item h2 {
-      font-size: 1.1em;
-      font-weight: bold; }
+      font-size: 1em;
+      color: #000000;
+      margin-bottom: 3px; }
       .left .list-group-item h2 .oi {
-        font-size: 0.8em; }
+        font-size: 10px;
+        width: 15px;
+        display: inline-block;
+        color: #5e6263; }
     .left .list-group-item p {
-      color: #666;
-      font-size: 0.9em; }
-    .left .list-group-item .badge {
-      margin-right: 10px;
-      font-weight: normal;
-      font-size: 0.65em;
-      padding: 5px 7px; }
-      .left .list-group-item .badge.badge-dark {
-        background: #999999; }
+      color: #8d9294;
+      font-size: 0.7em;
+      margin-bottom: 0px;
+      margin-left: 15px; }
+    .left .list-group-item .badges {
+      margin-top: 5px; }
+      .left .list-group-item .badges .badge {
+        float: right;
+        font-weight: normal;
+        font-size: 0.65em;
+        margin-right: 5px;
+        color: #2f3131; }
+        .left .list-group-item .badges .badge:before {
+          content: "#"; }
 
 .right {
   display: flex;
-  flex-direction: column; }
+  flex-direction: column;
+  background: #FFFFFF; }
   .right .status-bar {
-    padding: 10px 0; }
+    padding: 0px 0;
+    padding-bottom: 10px;
+    background: #f9fcfd; }
+    .right .status-bar .btn {
+      font-size: 1em;
+      padding: 10px;
+      line-height: 0.75em;
+      margin: 0;
+      display: inline-block;
+      border-radius: 0;
+      border: 0; }
+      .right .status-bar .btn.btn-warning {
+        background-color: #F2A30F; }
+        .right .status-bar .btn.btn-warning:hover {
+          background-color: #da930e; }
+      .right .status-bar .btn.btn-info {
+        background-color: #2474A6; }
+        .right .status-bar .btn.btn-info:hover {
+          background-color: #206895; }
+      .right .status-bar .btn.btn-danger {
+        background-color: #E00B27; }
+        .right .status-bar .btn.btn-danger:hover {
+          background-color: #ca0a23; }
+      .right .status-bar .btn.btn-light {
+        background-color: #e9f1f6; }
+        .right .status-bar .btn.btn-light:hover {
+          background-color: #d3e3ed; }
     .right .status-bar .saving-msg {
       font-weight: normal;
       font-size: 0.6em;
       margin-top: 10px;
       width: 100%;
       color: #999; }
-    .right .status-bar .links a {
+    .right .status-bar .links div {
+      padding-top: 20px;
       margin-left: 20px; }
-      .right .status-bar .links a:first-child {
+      .right .status-bar .links div:first-child {
         margin-left: 0; }
   .right .versioning .label {
     color: #333;
@@ -122,7 +179,9 @@ html, body {
     border-radius: 0;
     border: 0;
     margin: 2px 0;
-    border-bottom: 1px solid #ddd; }
+    border-bottom: 1px solid #e0e3e4;
+    background: #FFFFFF;
+    margin: 0; }
   .right .edit-view {
     display: flex;
     flex-direction: column;
@@ -143,17 +202,27 @@ html, body {
       bottom: 0;
       height: 100%; }
   .right .preview-view {
-    overflow-y: scroll; }
-    .right .preview-view .title {
+    font-family: "Crimson Text", serif;
+    overflow-y: scroll;
+    overflow-x: hidden; }
+    .right .preview-view h1 {
       width: 100%;
-      text-align: center;
-      font-weight: bold;
-      font-size: 3em;
-      border-bottom: 1px solid #CCC;
-      padding-bottom: 10px;
       margin-bottom: 30px;
-      color: #333333; }
+      font-size: 1em; }
+      .right .preview-view h1 span {
+        width: 70%;
+        display: block;
+        margin: auto;
+        text-align: center;
+        font-weight: bold;
+        font-size: 2em;
+        border-bottom: 1px solid #CCC;
+        padding-bottom: 15px;
+        color: #333333; }
     .right .preview-view .preview-area {
       padding: 10px 40px; }
+      .right .preview-view .preview-area pre {
+        word-wrap: break-word;
+        white-space: pre-wrap; }
 
 /*# sourceMappingURL=style.css.map */

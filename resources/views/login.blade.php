@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-     <title>WTFnote</title>
+     <title>wtfnote</title>
      <meta charset="utf-8">
      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
      <link rel="stylesheet" href="css/bootstrap.css">
@@ -12,6 +12,8 @@
         <div class="container">
             <div class="row">
                 <div class="col align-self-center">
+                    <h1>wtfnote</h1>
+                    <h6>Version: {{ config('app.version') }}</h6>
                     <form action="./login" method="POST">
                     <div class="input-group mb-3">
                         <input type="hidden" name="email" value="{{ env('APP_NAME') }}">
