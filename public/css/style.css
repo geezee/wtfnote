@@ -132,7 +132,8 @@ a {
   .right .status-bar {
     padding: 0px 0;
     padding-bottom: 10px;
-    background: #f9fcfd; }
+    background: #f9fcfd;
+    min-height: 70px; }
     .right .status-bar .btn {
       font-size: 1em;
       padding: 10px;
@@ -204,7 +205,8 @@ a {
   .right .preview-view {
     font-family: "Crimson Text", serif;
     overflow-y: scroll;
-    overflow-x: hidden; }
+    overflow-x: hidden;
+    padding-top: 20px; }
     .right .preview-view h1 {
       width: 100%;
       margin-bottom: 30px;
