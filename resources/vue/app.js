@@ -30,22 +30,6 @@ const app = {
     },
 
     methods: {
-        createNewNote: function() {
-            this.biggestId++;
-            var newNote = {
-                id: JSON.parse(JSON.stringify(this.biggestId)),
-                title: "",
-                tags: [],
-                attachments: [],
-                versions: []
-            };
-            this.notes.push(newNote);
-            this.selectNote(newNote);
-            this.sortNotes();
-            this.queryNotes();
-            this.$http.get(`./api/note/${this.biggestId}/create`).then(_ => {});
-        },
-
         getNoteBodyPreview: function(note) {
             if (note.versions.length == 0 || note.versions[0].body == null) {
                 return "";

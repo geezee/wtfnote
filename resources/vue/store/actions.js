@@ -24,4 +24,23 @@ SELECT_FIRST_NOTE: ({ state, commit, dispatch }) =>
 
 
 RENDER_MATHJAX: ctx =>
-    Vue.nextTick(_ => MathJax.Hub.Queue(["Typeset", MathJax.Hub]))
+    Vue.nextTick(_ => MathJax.Hub.Queue(["Typeset", MathJax.Hub])),
+
+
+CREATE_NOTE: ({ state, commit, dispatch }) =>
+    new Promise((resolve, reject) => {
+        Vue.http.get(`./api/note/create`).then(request => {
+            const newNote = {
+                id: request.body.id,
+                title: "",
+                tags: [],
+                attachments: [],
+                versions: [],
+                isPinned: false
+            };
+            state.notes.push(newNote);
+            dispatch('SELECT_NOTE', newNote);
+            commit('SORT_NOTES');
+        });
+    }),
+

@@ -50,17 +50,12 @@ class ApiController extends Controller
     }
 
 
-    public function create($noteId) {
-        $note = App\Note::find($noteId);
-        if (!is_null($note)) {
-            return response()->json(makeError('Note exists'));
-        }
-
+    public function create() {
         $note = App\Note::create([ 'title' => '', 'isPinned' => false ]);
-        $note->id = $noteId;
-        $note->save();
 
-        return response()->json(noError());
+        return response()->json([
+          'id' => $note->id
+        ]);
     }
 
 

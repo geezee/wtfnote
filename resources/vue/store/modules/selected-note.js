@@ -26,7 +26,8 @@ const SelectedNote = {
         },
 
         UPDATE_BODY: state =>
-            Vue.set(state.selectedNote, 'body', state.selectedNote.versions[state.versionNumber].body),
+            Vue.set(state.selectedNote, 'body', state.selectedNote.versions.length > 0 ?
+                state.selectedNote.versions[state.versionNumber].body : ''),
 
         DESELECT_NOTE: state =>
             state.selectedNote = emptyNote,
@@ -51,13 +52,13 @@ const SelectedNote = {
         isVersioning: state => state.versioning,
         getVersionNumber: state => state.versionNumber,
         getSelectionVersion: state =>
-            (state.selectedNote.id != emptyNote.id) ?
+            (state.selectedNote.id != emptyNote.id && state.selectedNote.versions.length > 0) ?
                 state.selectedNote.versions[state.versionNumber] :
                 { createdAt: '', body: '' },
     },
 
     actions: {
-        TOGGLE_PIN_SELECTED_NOTE: ({ state, getters }) =>
+        TOGGLE_PIN_SELECTED_NOTE: ({ state, commit, getters }) =>
             new Promise((resolve, reject) => {
                 if (!getters.hasSelection) reject();
 
@@ -67,6 +68,7 @@ const SelectedNote = {
                     pin: !value
                 }).then(response => {
                     state.selectedNote.isPinned = !value;
+                    commit('SORT_NOTES');
                     resolve();
                 }, reject);
             }),
@@ -74,14 +76,15 @@ const SelectedNote = {
         TOGGLE_VERSIONING: ({ state }) =>
             state.versioning = !state.versioning,
 
-        DELETE_SELECTED_NOTE: ({ state, dispatch }) =>
+        DELETE_SELECTED_NOTE: ({ state, dispatch, commit, getters }) =>
             new Promise((resolve, reject) => {
-                if (state.notes.length == 0) return reject();
+                if (!getters.hasSelection) return reject();
 
-                Vue.http.get(`./api/note/${state.selectedNote.id}/delete`)
+                const selectedNoteId = state.selectedNote.id;
+                Vue.http.get(`./api/note/${selectedNoteId}/delete`)
                     .then(request => {
                         dispatch('SELECT_FIRST_NOTE');
-                        commit('REMOVE_NOTE', state.selectedNote.id);
+                        commit('REMOVE_NOTE', selectedNoteId);
                         resolve();
                     }, error => {
                         reject(error);
@@ -103,7 +106,7 @@ const SelectedNote = {
                     version: version
                 }).then(response => {
                     state.selectedNote.versions.splice(0, version);
-                    state.selectedNote.version = 0;
+                    state.versionNumber = 0;
                     commit('UPDATE_BODY');
                 }, reject);
             }),

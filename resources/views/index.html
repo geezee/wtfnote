@@ -97,7 +97,8 @@
           <div class="col right">
             <div class="row status-bar">
               <div class="col-4 button-bar">
-                <button type="button" class="btn btn-info" v-on:click="createNewNote()">
+                <button type="button" class="btn btn-info"
+                        v-on:click="store.dispatch('CREATE_NOTE')">
                   <span class="oi" data-glyph="plus"></span>
                 </button>
                 <!-- <button type="button" class="btn" v-on:click="showAttachmentWindow()"
