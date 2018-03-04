@@ -19,6 +19,7 @@ const SelectedNote = {
         SELECT_NOTE: (state, note) => {
             state.selectedNote = note,
             state.selectedNote.body = '';
+            state.versionNumber = 0;
             if (note.versions.length > 0) {
                 state.selectedNote.createdAt = note.versions[0].createdAt;
             }
@@ -49,17 +50,20 @@ const SelectedNote = {
         isEditing: state => state.editing,
         isVersioning: state => state.versioning,
         getVersionNumber: state => state.versionNumber,
-        getSelectionVersion: state => state.selectedNote.versions[state.versionNumber],
+        getSelectionVersion: state =>
+            (state.selectedNote.id != emptyNote.id) ?
+                state.selectedNote.versions[state.versionNumber] :
+                { createdAt: '', body: '' },
     },
 
     actions: {
-        TOGGLE_PIN_SELECTED_NOTE: ({ state }) =>
+        TOGGLE_PIN_SELECTED_NOTE: ({ state, getters }) =>
             new Promise((resolve, reject) => {
-                if (!state.getters.hasSelection) reject();
+                if (!getters.hasSelection) reject();
 
                 const value = state.selectedNote.isPinned;
 
-                Vue.http.post(`./api/notes/${state.selectedNote.id}/setPin`, {
+                Vue.http.post(`./api/note/${state.selectedNote.id}/setPin`, {
                     pin: !value
                 }).then(response => {
                     state.selectedNote.isPinned = !value;
