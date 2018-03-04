@@ -1,0 +1,8 @@
+let Autosave = {
+    data: {
+    },
+
+    methods: {
+
+    }
+}

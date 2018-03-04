@@ -1,169 +1,191 @@
 <!DOCTYPE html>
 <html>
-    <head>
-     <title>wtfnote</title>
-     <meta charset="utf-8">
-     <link rel="stylesheet" href="css/bootstrap.css">
-     <link rel="stylesheet" href="css/open-iconic.css">
-     <link rel="stylesheet" href="fonts/Typewriter/cmun-typewriter.css">
-     <link rel="stylesheet" href="css/style.css">
-     <link rel="stylesheet" href="css/asciinema-player.css">
-     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
-    </head>
+  <head>
+    <title>wtfnote</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/open-iconic.css">
+    <!-- <link rel="stylesheet" href="fonts/Typewriter/cmun-typewriter.css">
+    <link rel="stylesheet" href="css/asciinema-player.css"> -->
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script> -->
+  </head>
 
-    <body>
-     <div id="app" class="container-fluid">
+  <body>
+    <div id="app" class="container-fluid">
 
-      <div class="modal fade" v-bind:class="{ open: modal.visible, close: !modal.visible }">
+      <!--
+        <div class="modal fade open" v-show="modal.visible">
         <div class="modal-dialog">
-          <div class="modal-content">
-              <div class="modal-body" v-html="modal.text"></div>
-              <div class="modal-footer">
-                <button class="btn btn-secondary" v-on:click="modal.visible = false;">Cancel</button>
-                <button class="btn btn-danger" v-on:click="executeModal()">{{ modal.button }}</button>
-              </div>
-           </div>
+        <div class="modal-content">
+        <div class="modal-body" v-html="modal.text"></div>
+        <div class="modal-footer">
+        <button class="btn btn-secondary" v-on:click="modal.visible = false;">Cancel</button>
+        <button class="btn btn-danger" v-on:click="executeModal()">{{ modal.button }}</button>
         </div>
-      </div>
+        </div>
+        </div>
+        </div> -->
 
 
-      <div class="modal attachment fade" v-bind:class="{ open: attachmentWindowVisible, close: !attachmentWindowVisible }">
-        <div class="modal-dialog">
-          <div class="modal-content">
+        <!--
+        <div class="modal attachment fade open" v-show="attachmentWindowVisible">
+          <div class="modal-dialog">
+            <div class="modal-content">
               <div class="modal-header">
-                  <span class="oi" data-glyph="x" v-on:click="hideAttachmentWindow()"></span>
+                <span class="oi" data-glyph="x" v-on:click="hideAttachmentWindow()"></span>
               </div>
               <div class="modal-body">
-                  <ul v-for="(uri, index) in selectedNote.attachments">
-                      <li>
-                          <a v-bind:href="uri" target="_blank" class="uri">{{ uri.split('/').slice(-1)[0] }}</a>
-                          <span class="oi delete" data-glyph="x" style="float: right" v-on:click="deleteAttachment(index)"></span>
-                      </li>
-                  </ul>
+                <ul v-for="(uri, index) in selectedNote.attachments">
+                  <li>
+                    <a v-bind:href="uri" target="_blank" class="uri">{{ uri.split('/').slice(-1)[0] }}</a>
+                    <span class="oi delete" data-glyph="x" style="float: right" v-on:click="deleteAttachment(index)"></span>
+                  </li>
+                </ul>
               </div>
               <div class="modal-footer">
-                  <form action="./upload" enctype="multipart/form-data" method="post">
-                      <div class="row">
-                          <div class="col-6">
-                              <input type="hidden" name="note_id" v-bind:value="selectedNote.id">
-                              <input type="file" name="file" style="width: 100%">
-                          </div>
-                          <div class="col-6 text-right">
-                              <input type="submit" class="btn btn-warning" value="Upload">
-                          </div>
-                      </div>
-                  </form>
+                <form action="./upload" enctype="multipart/form-data" method="post">
+                  <div class="row">
+                    <div class="col-6">
+                      <input type="hidden" name="note_id" v-bind:value="selectedNote.id">
+                      <input type="file" name="file" style="width: 100%">
+                    </div>
+                    <div class="col-6 text-right">
+                      <input type="submit" class="btn btn-warning" value="Upload">
+                    </div>
+                  </div>
+                </form>
               </div>
-           </div>
-        </div>
-      </div>
-
-
-      <div class="row">
-
-       <div class="col left">
-        <div class="row search">
-            <div class="col-12">
-             <input type="text" class="form-control" v-model="searchQuery" v-on:input="queryNotes" placeholder="Search">
             </div>
+          </div>
         </div>
+        -->
+
+
         <div class="row">
-            <div class="col-12">
-             <ul class="list-group">
-              <li v-for="note in displayedNotes" v-on:click="selectNote(note)" class="list-group-item"
-               v-bind:class="{ focused: selectedNote.id == note.id }">
-                  <h2><span class="oi" data-glyph="bolt" v-bind:style="{ opacity: note.isPinned ? 1 : 0 }"></span>{{ getNoteTitlePreview(note) }}</h2>
-               <p>{{ getNoteBodyPreview(note) }}</p>
-               <div class="badges">
-                 <span v-for="tag in note.tags" class="badge">{{ tag }}</span>
-               </div>
-              </li>
-             </ul>
+
+          <div class="col left">
+            <div class="row search">
+              <div class="col-12">
+                <!-- <input type="text" class="form-control" v-model="searchQuery" v-on:input="queryNotes" placeholder="Search"> -->
+              </div>
             </div>
-        </div>
-       </div>
+            <div class="row">
+              <div class="col-12">
+                <ul class="list-group">
+                  <li v-for="note in mainStore.state.notes"
+                      v-on:click="mainStore.dispatch('SELECT_NOTE', note)"
+                      class="list-group-item"
+                      v-bind:class="{ focused: mainStore.getters.getSelection.id == note.id }">
+                    <h2>
+                      <span class="oi" data-glyph="bolt"
+                            v-bind:style="{ opacity: note.isPinned ? 1 : 0 }"></span>
+                      {{ getNoteTitlePreview(note) }}
+                    </h2>
+                    <p>{{ getNoteBodyPreview(note) }}</p>
+                    <div class="badges">
+                      <span v-for="tag in note.tags" class="badge">{{ tag }}</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
 
 
-       <div class="col right">
-        <div class="row status-bar">
-            <div class="col-4 button-bar">
-             <button type="button" class="btn btn-info" v-on:click="createNewNote()">
-              <span class="oi" data-glyph="plus"></span>
-             </button><button type="button" class="btn" v-on:click="showAttachmentWindow()"
-                v-bind:class="{ 'btn-warning': selectedNote.hasAttachment, 'btn-light': !selectedNote.hasAttachment }" v-if="!isEmpty">
-                <span class="oi" data-glyph="paperclip"></span>
-             </button><button type="button" class="btn" v-on:click="toggleSelectedNotePin()"
-              v-bind:class="{ 'btn-success': selectedNote.isPinned, 'btn-light': !selectedNote.isPinned }" v-if="!isEmpty">
-              <span class="oi" data-glyph="bolt"></span>
-             </button><button type="button" class="btn btn-light" id="info-button" v-if="!isEmptyNote">
-              <span class="oi" data-glyph="info"></span>
-             </button><div class="info-window">
-              Created {{ selectedNote.createdAt }}
-             </div><button type="button" class="btn" v-bind:class="{ 'btn-light' : !showVersionControl, 'btn-warning': showVersionControl }" v-on:click="toggleVersionControlView()" v-if="!isEmptyNote">
-              <span class="oi" data-glyph="timer"></span>
-             </button><button type="button" class="btn btn-danger" v-on:click="deleteSelectedNote()" v-if="!isEmpty">
-              <span class="oi" data-glyph="trash"></span>
-             </button>
-            </div>
-            <div class="col-4 text-center">
-             <button type='button' class='btn' v-bind:class="{ 'btn-info': editView, 'btn-light': !editView }"
-              v-on:click="changeToEditMode()">
-              <span class="oi" data-glyph="pencil"></span>
-             </button><button type="button" class="btn" v-bind:class="{ 'btn-info': !editView, 'btn-light': editView }"
-              v-on:click="changeToPreviewMode()">
-              <span class="oi" data-glyph="eye"></span>
-             </button>
-             <div class="saving-msg" v-show="autoSave.saving">
-              Saving...
-             </div>
-             <div class="saving-msg" v-if="!autoSave.saving && selectedNote.versions.length > 0">
-              Last saved {{ selectedNote.versions[0].createdAt }}
-             </div>
-            </div>
-            <div class="col-4 text-right links">
+          <div class="col right">
+            <!-- <div class="row status-bar">
+              <div class="col-4 button-bar">
+                <button type="button" class="btn btn-info" v-on:click="createNewNote()">
+                  <span class="oi" data-glyph="plus"></span>
+                </button><button type="button" class="btn" v-on:click="showAttachmentWindow()"
+                                               v-bind:class="{ 'btn-warning': selectedNote.hasAttachment, 'btn-light': !selectedNote.hasAttachment }" v-if="!isEmpty">
+                  <span class="oi" data-glyph="paperclip"></span>
+                </button><button type="button" class="btn" v-on:click="toggleSelectedNotePin()"
+                                               v-bind:class="{ 'btn-success': selectedNote.isPinned, 'btn-light': !selectedNote.isPinned }" v-if="!isEmpty">
+                  <span class="oi" data-glyph="bolt"></span>
+                </button><button type="button" class="btn btn-light" id="info-button" v-if="!isEmptyNote">
+                  <span class="oi" data-glyph="info"></span>
+                </button><div class="info-window">
+                  Created {{ selectedNote.createdAt }}
+                </div><button type="button" class="btn" v-bind:class="{ 'btn-light' : !showVersionControl, 'btn-warning': showVersionControl }" v-on:click="toggleVersionControlView()" v-if="!isEmptyNote">
+                  <span class="oi" data-glyph="timer"></span>
+                </button><button type="button" class="btn btn-danger" v-on:click="deleteSelectedNote()" v-if="!isEmpty">
+                  <span class="oi" data-glyph="trash"></span>
+                </button>
+              </div>
+              <div class="col-4 text-center">
+                <button type='button' class='btn' v-bind:class="{ 'btn-info': editView, 'btn-light': !editView }"
+                   v-on:click="changeToEditMode()">
+                  <span class="oi" data-glyph="pencil"></span>
+                </button><button type="button" class="btn" v-bind:class="{ 'btn-info': !editView, 'btn-light': editView }"
+                                               v-on:click="changeToPreviewMode()">
+                  <span class="oi" data-glyph="eye"></span>
+                </button>
+                <div class="saving-msg" v-show="autoSave.saving">
+                  Saving...
+                </div>
+                <div class="saving-msg" v-if="!autoSave.saving && selectedNote.versions.length > 0">
+                  Last saved {{ selectedNote.versions[0].createdAt }}
+                </div>
+              </div>
+              <div class="col-4 text-right links">
                 <div>
-                 <a href="./settings">Settings</a>
-                 <a href="./logout">Logout</a>
+                  <a href="./settings">Settings</a>
+                  <a href="./logout">Logout</a>
                 </div>
+              </div>
+            </div> -->
+            <div class="row edit-view" v-show="mainStore.getters.isEditing">
+              <!-- 
+              <div class="row versioning" v-show="showVersionControl" style="display: none">
+                <div class="col-4 text-right label">
+                  {{ getSelectedVersionDate() }}
+                  ({{ parseInt(selectedNoteVersion) + 1 }}/{{ selectedNote.versions.length }})
+                </div>
+                <div class="col-4">
+                  <input type="range" min="0" v-bind:max="selectedNote.versions.length-1" value="0" v-model="selectedNoteVersion" class="form-control">
+                </div>
+                <div class="col-4">
+                  <button type="button" class="btn btn-danger" v-on:click="restoreVersion">Restore</button>
+                </div>
+              </div>
+              -->
+              <input type="text" class="form-control title"
+                     v-model="mainStore.getters.getSelection.title"
+                     v-on:input="/* autoSaveTitle */"
+                     placeholder="Title">
+              <input type="text" class="form-control tags" placeholder="Tags"
+                     v-on:input="/* (e) => { updateSelectedTag(e); autoSaveTags(); } */"
+                     v-bind:value="mainStore.getters.getSelection.tags.join(', ')">
+              <div class="content-editor">
+                <textarea class="form-control"
+                     v-bind:value="mainStore.getters.getSelection.body"
+                     v-on:input="/* autoSaveBody */"></textarea>
+              </div>
             </div>
-        </div>
-        <div class="row edit-view" v-show="editView">
-            <div class="row versioning" v-show="showVersionControl" style="display: none">
-             <div class="col-4 text-right label">
-                 {{ getSelectedVersionDate() }}
-                 ({{ parseInt(selectedNoteVersion) + 1 }}/{{ selectedNote.versions.length }})
-             </div>
-             <div class="col-4">
-              <input type="range" min="0" v-bind:max="selectedNote.versions.length-1" value="0" v-model="selectedNoteVersion" class="form-control">
-             </div>
-             <div class="col-4">
-              <button type="button" class="btn btn-danger" v-on:click="restoreVersion">Restore</button>
-             </div>
-            </div>
-            <input type="text" class="form-control title" v-model="selectedNote.title" v-on:input="autoSaveTitle" placeholder="Title">
-            <input type="text" class="form-control tags" placeholder="Tags" v-on:input="(e) => { updateSelectedTag(e); autoSaveTags(); }" v-model="selectedNoteTag">
-            <div class="content-editor">
-             <textarea class="form-control" v-bind:value="getSelectedNoteBody()" v-on:input="autoSaveBody"></textarea>
-            </div>
-        </div>
-        <div class="row preview-view" v-show="!editView">
-                <h1><span>{{ selectedNote.title }}</span></h1>
-                <div class="preview-area">
+            <!-- 
+            <div class="row preview-view" v-show="!editView">
+              <h1><span>{{ selectedNote.title }}</span></h1>
+              <div class="preview-area">
                 <div v-html="getHTML()"></div>
-                </div>
+              </div>
             </div>
+            -->
+          </div>
         </div>
-       </div>
 
-      </div>
-     </div>
+    </div>
 
-     <script src="js/vue.js"></script>
-     <script src="js/vue-resource.js"></script>
-     <script src="js/showdown.min.js"></script>
-     <script src="js/app.js"></script>
+    <script src="js/vue.js"></script>
+    <script src="js/vuex.js"></script>
+    <script src="js/vue-resource.js"></script>
+    <script src="js/vuex-logger.js"></script>
 
-     <script src="js/asciinema-player.js"></script>
-    </body>
+    <script src="js/app-2.js"></script>
+
+    <script src="js/asciinema-player.js"></script>
+    <script src="js/showdown.min.js"></script>
+  </body>
 </html>
