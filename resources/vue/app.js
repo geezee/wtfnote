@@ -16,7 +16,9 @@ const app = {
             hasSelection: 'hasSelection',
             isVersioning: 'isVersioning',
             isEditing: 'isEditing',
-            selectionVersion: 'getSelectionVersion'
+            selectionVersion: 'getSelectionVersion',
+            lastSaved: 'getLastSaved',
+            saving: 'isSaving',
         })
     },
 
@@ -46,7 +48,20 @@ const app = {
 
         getSelectedNoteTags: function() {
             return store.getters.getSelection.tags.join(', ');
-        }
+        },
+
+        updateSelectedTag: function(e) {
+            const rawTags = e.target.value.split(',');
+
+            let cleanTags = rawTags
+                .slice(0, rawTags.length - 1)
+                .map(tag => tag.replace(/^\s+/g, '').replace(/\s+$/g, ''))
+                .filter(tag => tag.length > 0);
+
+            cleanTags.push(rawTags[rawTags.length - 1].replace(/^\s+/g, ''));
+
+            Vue.set(store.state.selectedNote.selectedNote, 'tags', cleanTags);
+        },
     }
 
 };

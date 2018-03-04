@@ -60,7 +60,7 @@ const SelectedNote = {
     actions: {
         TOGGLE_PIN_SELECTED_NOTE: ({ state, commit, getters }) =>
             new Promise((resolve, reject) => {
-                if (!getters.hasSelection) reject();
+                if (!getters.hasSelection) return;
 
                 const value = state.selectedNote.isPinned;
 
@@ -69,7 +69,7 @@ const SelectedNote = {
                 }).then(response => {
                     state.selectedNote.isPinned = !value;
                     commit('SORT_NOTES');
-                    resolve();
+                    if (typeof resolve === "function") resolve();
                 }, reject);
             }),
 
@@ -78,17 +78,15 @@ const SelectedNote = {
 
         DELETE_SELECTED_NOTE: ({ state, dispatch, commit, getters }) =>
             new Promise((resolve, reject) => {
-                if (!getters.hasSelection) return reject();
+                if (!getters.hasSelection) return;
 
                 const selectedNoteId = state.selectedNote.id;
                 Vue.http.get(`./api/note/${selectedNoteId}/delete`)
                     .then(request => {
                         dispatch('SELECT_FIRST_NOTE');
                         commit('REMOVE_NOTE', selectedNoteId);
-                        resolve();
-                    }, error => {
-                        reject(error);
-                    });
+                        if (typeof resolve === "function") resolve();
+                    }, reject);
             }),
 
         CHANGE_VERSION ({ state, commit }, version) {
@@ -108,6 +106,7 @@ const SelectedNote = {
                     state.selectedNote.versions.splice(0, version);
                     state.versionNumber = 0;
                     commit('UPDATE_BODY');
+                    if (typeof resolve === "function") resolve();
                 }, reject);
             }),
 
@@ -124,11 +123,116 @@ const SelectedNote = {
 }
 
 
+const AutoSave = {
+    state: {
+        titleDirty: false,
+        tagsDirty: false,
+        bodyDirty: false,
+        body: '',
+        delay: 5000,
+        saving: false,
+        timer: null,
+    },
+
+    mutations: {
+        MARK_UPTODATE: state => {
+            state.titleDirty = false;
+            state.tagsDirty = false;
+            state.bodyDirty = false;
+            state.body = '';
+        }
+    },
+
+    getters: {
+        getModifications (state) {
+            let mod = [];
+            if (state.titleDirty) mod.push('title');
+            if (state.tagsDirty) mod.push('tag');
+            if (state.bodyDirty) mod.push('body');
+            return mod;
+        },
+
+        getModificationsOfSelectedNote (state, getters) {
+            let modNote = {};
+            if (state.titleDirty) modNote.title = getters.getSelection.title;
+            if (state.tagsDirty) modNote.tag = getters.getSelection.tags;
+            if (state.bodyDirty) modNote.body = state.body;
+            return modNote;
+        },
+
+        getLastSaved: (state, getters) =>
+            getters.hasSelection && getters.getSelection.versions.length > 0 ?
+                getters.getSelection.versions[0].createdAt : '',
+
+        isSaving: state => state.saving,
+    },
+
+    actions: {
+        SAVE_TITLE: ({ state, dispatch }) => {
+            state.titleDirty = true;
+            return dispatch('SAVE');
+        },
+        SAVE_TAGS: ({ state, dispatch }) => {
+            state.tagsDirty = true;
+            return dispatch('SAVE');
+        },
+        SAVE_BODY: ({ state, dispatch }, body) => {
+            state.bodyDirty = true;
+            state.body = body;
+            return dispatch('SAVE');
+        },
+
+        SAVE: ({ state, dispatch }) => {
+            if (state.timer != null) {
+                clearTimeout(state.timer);
+            }
+            return new Promise((resolve, reject) => {
+                state.timer = setTimeout(
+                    () => dispatch('FLUSH').then(resolve, reject),
+                    state.delay);
+            });
+        },
+
+        FLUSH: ({ state, getters, commit }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.hasSelection) return;
+                if (!state.titleDirty && !state.tagsDirty && !state.bodyDirty) return;
+
+                let payload = {
+                    modified: getters.getModifications,
+                    note: getters.getModificationsOfSelectedNote
+                };
+
+                state.saving = true;
+                Vue.http.post(`./api/note/${getters.getSelection.id}/update`, payload)
+                    .then((request) => {
+                        if (state.bodyDirty) {
+                            const currentDateTokens = new Date().toISOString()
+                                    .match(/(\d{4}\-\d{2}\-\d{2})T(\d{2}:\d{2}:\d{2})/);
+                            getters.getSelection.versions.splice(0, 0,
+                                {
+                                    body: request.body.note.body,
+                                    createdAt: currentDateTokens[1] + ' ' + currentDateTokens[2]
+                                });
+                            commit('UPDATE_BODY');
+                        }
+                        state.saving = false;
+                        commit('MARK_UPTODATE');
+                        if (typeof resolve === "function") resolve();
+                    }, reject);
+            });
+        },
+    },
+}
+
+
+
 
 
 const store = new Vuex.Store({
     modules: {
-        selectedNote: SelectedNote
+        selectedNote: SelectedNote,
+        autoSave: AutoSave
     },
 
     plugins: [ createLogger() ],
@@ -152,7 +256,8 @@ const store = new Vuex.Store({
     }),
 
 
-SELECT_NOTE: ({ commit }, note) => {
+SELECT_NOTE: ({ commit, dispatch }, note) => {
+    dispatch('FLUSH');
     commit('SELECT_NOTE', note);
     commit('UPDATE_BODY');
 },
@@ -242,7 +347,9 @@ const app = {
             hasSelection: 'hasSelection',
             isVersioning: 'isVersioning',
             isEditing: 'isEditing',
-            selectionVersion: 'getSelectionVersion'
+            selectionVersion: 'getSelectionVersion',
+            lastSaved: 'getLastSaved',
+            saving: 'isSaving',
         })
     },
 
@@ -272,7 +379,20 @@ const app = {
 
         getSelectedNoteTags: function() {
             return store.getters.getSelection.tags.join(', ');
-        }
+        },
+
+        updateSelectedTag: function(e) {
+            const rawTags = e.target.value.split(',');
+
+            let cleanTags = rawTags
+                .slice(0, rawTags.length - 1)
+                .map(tag => tag.replace(/^\s+/g, '').replace(/\s+$/g, ''))
+                .filter(tag => tag.length > 0);
+
+            cleanTags.push(rawTags[rawTags.length - 1].replace(/^\s+/g, ''));
+
+            Vue.set(store.state.selectedNote.selectedNote, 'tags', cleanTags);
+        },
     }
 
 };

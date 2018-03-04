@@ -60,7 +60,7 @@ const SelectedNote = {
     actions: {
         TOGGLE_PIN_SELECTED_NOTE: ({ state, commit, getters }) =>
             new Promise((resolve, reject) => {
-                if (!getters.hasSelection) reject();
+                if (!getters.hasSelection) return;
 
                 const value = state.selectedNote.isPinned;
 
@@ -69,7 +69,7 @@ const SelectedNote = {
                 }).then(response => {
                     state.selectedNote.isPinned = !value;
                     commit('SORT_NOTES');
-                    resolve();
+                    if (typeof resolve === "function") resolve();
                 }, reject);
             }),
 
@@ -78,17 +78,15 @@ const SelectedNote = {
 
         DELETE_SELECTED_NOTE: ({ state, dispatch, commit, getters }) =>
             new Promise((resolve, reject) => {
-                if (!getters.hasSelection) return reject();
+                if (!getters.hasSelection) return;
 
                 const selectedNoteId = state.selectedNote.id;
                 Vue.http.get(`./api/note/${selectedNoteId}/delete`)
                     .then(request => {
                         dispatch('SELECT_FIRST_NOTE');
                         commit('REMOVE_NOTE', selectedNoteId);
-                        resolve();
-                    }, error => {
-                        reject(error);
-                    });
+                        if (typeof resolve === "function") resolve();
+                    }, reject);
             }),
 
         CHANGE_VERSION ({ state, commit }, version) {
@@ -108,6 +106,7 @@ const SelectedNote = {
                     state.selectedNote.versions.splice(0, version);
                     state.versionNumber = 0;
                     commit('UPDATE_BODY');
+                    if (typeof resolve === "function") resolve();
                 }, reject);
             }),
 

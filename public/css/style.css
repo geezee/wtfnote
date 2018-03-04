@@ -163,7 +163,7 @@ a {
           background-color: #d3e3ed; }
     .right .status-bar .saving-msg {
       font-weight: normal;
-      font-size: 0.6em;
+      font-size: 12px;
       margin-top: 10px;
       width: 100%;
       color: #999; }

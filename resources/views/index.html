@@ -140,14 +140,12 @@
                         v-on:click="store.dispatch('VIEW_SELECTED_NOTE')">
                   <span class="oi" data-glyph="eye"></span>
                 </button>
-                <!--
-                <div class="saving-msg" v-show="autoSave.saving">
+                <div class="saving-msg" v-show="saving">
                   Saving...
                 </div>
-                <div class="saving-msg" v-if="!autoSave.saving && selectedNote.versions.length > 0">
-                  Last saved {{ selectedNote.versions[0].createdAt }}
+                <div class="saving-msg" v-if="lastSaved.length > 0">
+                  Last saved {{ lastSaved }}
                 </div>
-                -->
               </div>
               <div class="col-4 text-right links">
                 <div>
@@ -180,15 +178,18 @@
 
               <input type="text" class="form-control title"
                      v-model="selection.title"
-                     v-on:input="/* autoSaveTitle */"
+                     v-on:input="store.dispatch('SAVE_TITLE')"
+                     :disabled="saving"
                      placeholder="Title">
               <input type="text" class="form-control tags" placeholder="Tags"
-                     v-on:input="/* (e) => { updateSelectedTag(e); autoSaveTags(); } */"
+                     v-on:input="(e) => { updateSelectedTag(e); store.dispatch('SAVE_TAGS'); }"
+                     :disabled="saving"
                      v-bind:value="selection.tags.join(', ')">
               <div class="content-editor">
                 <textarea class="form-control"
                      v-bind:value="store.state.selectedNote.selectedNote.body"
-                     v-on:input="/* autoSaveBody */"></textarea>
+                     :disabled="saving"
+                     v-on:input="(e) => store.dispatch('SAVE_BODY', e.target.value)"></textarea>
               </div>
             </div>
 

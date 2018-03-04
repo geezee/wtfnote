@@ -11,7 +11,8 @@ LOAD_NOTES: ({ commit, state }) =>
     }),
 
 
-SELECT_NOTE: ({ commit }, note) => {
+SELECT_NOTE: ({ commit, dispatch }, note) => {
+    dispatch('FLUSH');
     commit('SELECT_NOTE', note);
     commit('UPDATE_BODY');
 },
