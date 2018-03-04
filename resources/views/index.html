@@ -5,11 +5,11 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/open-iconic.css">
-    <!-- <link rel="stylesheet" href="fonts/Typewriter/cmun-typewriter.css">
-    <link rel="stylesheet" href="css/asciinema-player.css"> -->
+    <link rel="stylesheet" href="fonts/Typewriter/cmun-typewriter.css">
+    <link rel="stylesheet" href="css/asciinema-player.css">
     <link rel="stylesheet" href="css/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script> -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
   </head>
 
   <body>
@@ -74,10 +74,10 @@
             <div class="row">
               <div class="col-12">
                 <ul class="list-group">
-                  <li v-for="note in mainStore.state.notes"
-                      v-on:click="mainStore.dispatch('SELECT_NOTE', note)"
+                  <li v-for="note in store.state.notes"
+                      v-on:click="store.dispatch('SELECT_NOTE', note)"
                       class="list-group-item"
-                      v-bind:class="{ focused: mainStore.getters.getSelection.id == note.id }">
+                      v-bind:class="{ focused: store.getters.getSelection.id == note.id }">
                     <h2>
                       <span class="oi" data-glyph="bolt"
                             v-bind:style="{ opacity: note.isPinned ? 1 : 0 }"></span>
@@ -95,40 +95,58 @@
 
 
           <div class="col right">
-            <!-- <div class="row status-bar">
+            <div class="row status-bar">
               <div class="col-4 button-bar">
                 <button type="button" class="btn btn-info" v-on:click="createNewNote()">
                   <span class="oi" data-glyph="plus"></span>
-                </button><button type="button" class="btn" v-on:click="showAttachmentWindow()"
+                </button>
+                <!-- <button type="button" class="btn" v-on:click="showAttachmentWindow()"
                                                v-bind:class="{ 'btn-warning': selectedNote.hasAttachment, 'btn-light': !selectedNote.hasAttachment }" v-if="!isEmpty">
                   <span class="oi" data-glyph="paperclip"></span>
-                </button><button type="button" class="btn" v-on:click="toggleSelectedNotePin()"
-                                               v-bind:class="{ 'btn-success': selectedNote.isPinned, 'btn-light': !selectedNote.isPinned }" v-if="!isEmpty">
+                </button> -->
+                <button type="button" class="btn btn-light" v-on:click="store.dispatch('TOGGLE_PIN_SELECTED_NOTE')"
+                        v-bind:class="{ 'btn-success': store.getters.getSelection.isPinned }"
+                        v-if="store.getters.hasSelection">
                   <span class="oi" data-glyph="bolt"></span>
-                </button><button type="button" class="btn btn-light" id="info-button" v-if="!isEmptyNote">
+                </button>
+                <button type="button" class="btn btn-light" id="info-button"
+                        v-if="store.getters.hasSelection">
                   <span class="oi" data-glyph="info"></span>
-                </button><div class="info-window">
-                  Created {{ selectedNote.createdAt }}
-                </div><button type="button" class="btn" v-bind:class="{ 'btn-light' : !showVersionControl, 'btn-warning': showVersionControl }" v-on:click="toggleVersionControlView()" v-if="!isEmptyNote">
+                </button>
+                <div class="info-window">
+                  Created {{ store.getters.getSelection.createdAt }}
+                </div>
+                <!--
+                <button type="button" class="btn btn-light"
+                        v-bind:class="{ 'btn-warning': showVersionControl }"
+                        v-on:click="toggleVersionControlView()" v-if="!isEmptyNote">
                   <span class="oi" data-glyph="timer"></span>
-                </button><button type="button" class="btn btn-danger" v-on:click="deleteSelectedNote()" v-if="!isEmpty">
+                </button> -->
+                <button type="button" class="btn btn-danger"
+                        v-on:click="store.dispatch('DELETE_SELECTED_NOTE')"
+                        v-if="store.getters.hasSelection">
                   <span class="oi" data-glyph="trash"></span>
                 </button>
               </div>
               <div class="col-4 text-center">
-                <button type='button' class='btn' v-bind:class="{ 'btn-info': editView, 'btn-light': !editView }"
-                   v-on:click="changeToEditMode()">
+                <button type='button' class='btn btn-light'
+                        v-bind:class="{ 'btn-info': store.getters.isEditing }"
+                        v-on:click="store.dispatch('EDIT_SELECTED_NOTE')">
                   <span class="oi" data-glyph="pencil"></span>
-                </button><button type="button" class="btn" v-bind:class="{ 'btn-info': !editView, 'btn-light': editView }"
-                                               v-on:click="changeToPreviewMode()">
+                </button>
+                <button type="button" class="btn btn-light"
+                        v-bind:class="{ 'btn-info': !store.getters.isEditing }"
+                        v-on:click="store.dispatch('VIEW_SELECTED_NOTE')">
                   <span class="oi" data-glyph="eye"></span>
                 </button>
+                <!--
                 <div class="saving-msg" v-show="autoSave.saving">
                   Saving...
                 </div>
                 <div class="saving-msg" v-if="!autoSave.saving && selectedNote.versions.length > 0">
                   Last saved {{ selectedNote.versions[0].createdAt }}
                 </div>
+                -->
               </div>
               <div class="col-4 text-right links">
                 <div>
@@ -136,8 +154,8 @@
                   <a href="./logout">Logout</a>
                 </div>
               </div>
-            </div> -->
-            <div class="row edit-view" v-show="mainStore.getters.isEditing">
+            </div>
+            <div class="row edit-view" v-show="store.getters.isEditing">
               <!-- 
               <div class="row versioning" v-show="showVersionControl" style="display: none">
                 <div class="col-4 text-right label">
@@ -153,26 +171,24 @@
               </div>
               -->
               <input type="text" class="form-control title"
-                     v-model="mainStore.getters.getSelection.title"
+                     v-model="store.getters.getSelection.title"
                      v-on:input="/* autoSaveTitle */"
                      placeholder="Title">
               <input type="text" class="form-control tags" placeholder="Tags"
                      v-on:input="/* (e) => { updateSelectedTag(e); autoSaveTags(); } */"
-                     v-bind:value="mainStore.getters.getSelection.tags.join(', ')">
+                     v-bind:value="store.getters.getSelection.tags.join(', ')">
               <div class="content-editor">
                 <textarea class="form-control"
-                     v-bind:value="mainStore.getters.getSelection.body"
+                     v-bind:value="store.getters.getSelection.body"
                      v-on:input="/* autoSaveBody */"></textarea>
               </div>
             </div>
-            <!-- 
-            <div class="row preview-view" v-show="!editView">
-              <h1><span>{{ selectedNote.title }}</span></h1>
+            <div class="row preview-view" v-show="!store.getters.isEditing">
+              <h1><span>{{ store.getters.getSelection.title }}</span></h1>
               <div class="preview-area">
-                <div v-html="getHTML()"></div>
+                <div v-html="store.getters.getSelection.html"></div>
               </div>
             </div>
-            -->
           </div>
         </div>
 

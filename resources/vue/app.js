@@ -3,26 +3,22 @@
 const app = {
     el: '#app',
 
-    mainStore,
+    store,
 
     data: {
         searchQuery: ''
     },
 
     beforeMount() {
-        mainStore.dispatch('LOAD_NOTES')
+        store.dispatch('LOAD_NOTES')
             .then(() => {
-                mainStore.dispatch('SELECT_FIRST_NOTE');
+                store.dispatch('SELECT_FIRST_NOTE');
             }, error => {
                 console.error('LOAD_NOTES', error);
             });
     },
 
     methods: {
-        setEdditingMode: function(mode) {
-            this.data.mode = mode;
-        },
-
         createNewNote: function() {
             this.biggestId++;
             var newNote = {
@@ -54,7 +50,7 @@ const app = {
         },
 
         getSelectedNoteTags: function() {
-            return mainStore.getters.getSelection.tags.join(', ');
+            return store.getters.getSelection.tags.join(', ');
         }
     }
 

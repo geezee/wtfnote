@@ -1,6 +1,6 @@
 // require ./modules/selected-note.js
 
-const mainStore = new Vuex.Store({
+const store = new Vuex.Store({
     modules: {
         selectedNote: SelectedNote
     },

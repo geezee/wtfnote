@@ -18,6 +18,9 @@ const SelectedNote = {
             state.selectedNote = note,
             state.selectedNote.version = 0;
             state.selectedNote.body = '';
+            if (note.versions.length > 0) {
+                state.selectedNote.createdAt = note.versions[0].createdAt;
+            }
         },
 
         UPDATE_BODY: state =>
@@ -28,10 +31,10 @@ const SelectedNote = {
 
         RENDER_SELECTED_NOTE: state =>
             state.selectedNote.html = new showdown.Converter()
-                .makeHtml(state.selectedNote.versions[state.selectedNote.version])
+                .makeHtml(state.selectedNote.versions[state.selectedNote.version].body)
                 .replace(/\$asciinema\([^\)\(]+\)/g, match => {
                     var filename = match.substring(11).slice(0, -1);
-                    var path = ['./attachments', this.selectedNote.id, filename].join('/');
+                    var path = ['./attachments', store.state.selectedNote.id, filename].join('/');
                     return `<asciinema-player src="${path}"></asciinema-player>`;
                 }),
 
@@ -40,14 +43,14 @@ const SelectedNote = {
     },
 
     getters: {
-        hasSelection: state => state.selectedNote.id != id,
+        hasSelection: state => state.selectedNote.id != emptyNote.id,
         getSelection: state => state.selectedNote,
         getSelectedVersion: state => state.selectedNote.version[state.selectedNote.version],
         isEditing: state => state.editing,
     },
 
     actions: {
-        PIN_SELECTED_NOTE: ({ state }) =>
+        TOGGLE_PIN_SELECTED_NOTE: ({ state }) =>
             new Promise((resolve, reject) => {
                 if (!state.getters.hasSelection) reject();
 
@@ -96,9 +99,9 @@ const SelectedNote = {
         EDIT_SELECTED_NOTE: ({ state }) =>
             state.editing = true,
 
-        VIEW_SELECTED_NOTE: ({ state, dispatch }) => {
+        VIEW_SELECTED_NOTE: ({ state, commit, dispatch }) => {
             state.editing = false;
-            dispatch('RENDER_SELECTED_NOTE');
+            commit('RENDER_SELECTED_NOTE');
             dispatch('RENDER_MATHJAX');
         }
     }
@@ -108,7 +111,7 @@ const SelectedNote = {
 
 
 
-const mainStore = new Vuex.Store({
+const store = new Vuex.Store({
     modules: {
         selectedNote: SelectedNote
     },
@@ -189,26 +192,22 @@ REMOVE_NOTE: (state, id) =>
 const app = {
     el: '#app',
 
-    mainStore,
+    store,
 
     data: {
         searchQuery: ''
     },
 
     beforeMount() {
-        mainStore.dispatch('LOAD_NOTES')
+        store.dispatch('LOAD_NOTES')
             .then(() => {
-                mainStore.dispatch('SELECT_FIRST_NOTE');
+                store.dispatch('SELECT_FIRST_NOTE');
             }, error => {
                 console.error('LOAD_NOTES', error);
             });
     },
 
     methods: {
-        setEdditingMode: function(mode) {
-            this.data.mode = mode;
-        },
-
         createNewNote: function() {
             this.biggestId++;
             var newNote = {
@@ -240,7 +239,7 @@ const app = {
         },
 
         getSelectedNoteTags: function() {
-            return mainStore.getters.getSelection.tags.join(', ');
+            return store.getters.getSelection.tags.join(', ');
         }
     }
 
