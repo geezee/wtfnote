@@ -37,7 +37,7 @@ const SelectedNote = {
                 .makeHtml(state.selectedNote.versions[state.versionNumber].body)
                 .replace(/\$asciinema\([^\)\(]+\)/g, match => {
                     var filename = match.substring(11).slice(0, -1);
-                    var path = ['./attachments', store.state.selectedNote.id, filename].join('/');
+                    var path = ['./attachments', store.getters.getSelection.id, filename].join('/');
                     return `<asciinema-player src="${path}"></asciinema-player>`;
                 }),
 
