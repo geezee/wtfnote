@@ -10,13 +10,14 @@ const SelectedNote = {
     
     state: {
         selectedNote: emptyNote,
-        editing: true
+        editing: true,
+        versioning: false,
+        versionNumber: 0
     },
 
     mutations: {
         SELECT_NOTE: (state, note) => {
             state.selectedNote = note,
-            state.selectedNote.version = 0;
             state.selectedNote.body = '';
             if (note.versions.length > 0) {
                 state.selectedNote.createdAt = note.versions[0].createdAt;
@@ -24,14 +25,14 @@ const SelectedNote = {
         },
 
         UPDATE_BODY: state =>
-            state.selectedNote.body = state.selectedNote.versions[state.selectedNote.version].body,
+            Vue.set(state.selectedNote, 'body', state.selectedNote.versions[state.versionNumber].body),
 
         DESELECT_NOTE: state =>
             state.selectedNote = emptyNote,
 
         RENDER_SELECTED_NOTE: state =>
             state.selectedNote.html = new showdown.Converter()
-                .makeHtml(state.selectedNote.versions[state.selectedNote.version].body)
+                .makeHtml(state.selectedNote.versions[state.versionNumber].body)
                 .replace(/\$asciinema\([^\)\(]+\)/g, match => {
                     var filename = match.substring(11).slice(0, -1);
                     var path = ['./attachments', store.state.selectedNote.id, filename].join('/');
@@ -45,8 +46,10 @@ const SelectedNote = {
     getters: {
         hasSelection: state => state.selectedNote.id != emptyNote.id,
         getSelection: state => state.selectedNote,
-        getSelectedVersion: state => state.selectedNote.version[state.selectedNote.version],
         isEditing: state => state.editing,
+        isVersioning: state => state.versioning,
+        getVersionNumber: state => state.versionNumber,
+        getSelectionVersion: state => state.selectedNote.versions[state.versionNumber],
     },
 
     actions: {
@@ -64,6 +67,9 @@ const SelectedNote = {
                 }, reject);
             }),
 
+        TOGGLE_VERSIONING: ({ state }) =>
+            state.versioning = !state.versioning,
+
         DELETE_SELECTED_NOTE: ({ state, dispatch }) =>
             new Promise((resolve, reject) => {
                 if (state.notes.length == 0) return reject();
@@ -80,13 +86,15 @@ const SelectedNote = {
 
         CHANGE_VERSION ({ state, commit }, version) {
             if (version < state.selectedNote.versions.length) {
-                state.selectedNote.version = version;
+                state.versionNumber = version;
                 commit('UPDATE_BODY');
             }
         },
 
-        RESTORE_VERSION: ({ state, commit }, version) =>
+        RESTORE_VERSION: ({ state, commit }) =>
             new Promise((resolve, reject) => {
+                const version = state.versionNumber;
+
                 Vue.http.post(`./api/note/${state.selectedNote.id}/restore`, {
                     version: version
                 }).then(response => {

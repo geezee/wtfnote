@@ -9,6 +9,17 @@ const app = {
         searchQuery: ''
     },
 
+    computed: {
+        ...Vuex.mapGetters({
+            versionNumber: 'getVersionNumber',
+            selection: 'getSelection',
+            hasSelection: 'hasSelection',
+            isVersioning: 'isVersioning',
+            isEditing: 'isEditing',
+            selectionVersion: 'getSelectionVersion'
+        })
+    },
+
     beforeMount() {
         store.dispatch('LOAD_NOTES')
             .then(() => {

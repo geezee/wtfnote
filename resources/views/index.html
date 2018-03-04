@@ -77,7 +77,7 @@
                   <li v-for="note in store.state.notes"
                       v-on:click="store.dispatch('SELECT_NOTE', note)"
                       class="list-group-item"
-                      v-bind:class="{ focused: store.getters.getSelection.id == note.id }">
+                      v-bind:class="{ focused: selection.id == note.id }">
                     <h2>
                       <span class="oi" data-glyph="bolt"
                             v-bind:style="{ opacity: note.isPinned ? 1 : 0 }"></span>
@@ -104,38 +104,38 @@
                                                v-bind:class="{ 'btn-warning': selectedNote.hasAttachment, 'btn-light': !selectedNote.hasAttachment }" v-if="!isEmpty">
                   <span class="oi" data-glyph="paperclip"></span>
                 </button> -->
-                <button type="button" class="btn btn-light" v-on:click="store.dispatch('TOGGLE_PIN_SELECTED_NOTE')"
-                        v-bind:class="{ 'btn-success': store.getters.getSelection.isPinned }"
-                        v-if="store.getters.hasSelection">
+                <button type="button" class="btn" v-on:click="store.dispatch('TOGGLE_PIN_SELECTED_NOTE')"
+                        v-bind:class="{ 'btn-success': selection.isPinned, 'btn-light': !selection.isPinned }"
+                        v-if="hasSelection">
                   <span class="oi" data-glyph="bolt"></span>
                 </button>
                 <button type="button" class="btn btn-light" id="info-button"
-                        v-if="store.getters.hasSelection">
+                        v-if="hasSelection">
                   <span class="oi" data-glyph="info"></span>
                 </button>
                 <div class="info-window">
-                  Created {{ store.getters.getSelection.createdAt }}
+                  Created {{ selection.createdAt }}
                 </div>
-                <!--
-                <button type="button" class="btn btn-light"
-                        v-bind:class="{ 'btn-warning': showVersionControl }"
-                        v-on:click="toggleVersionControlView()" v-if="!isEmptyNote">
+                <button type="button" class="btn"
+                        v-bind:class="{ 'btn-warning': isVersioning, 'btn-light': !isVersioning }"
+                        v-on:click="store.dispatch('TOGGLE_VERSIONING')"
+                        v-if="hasSelection">
                   <span class="oi" data-glyph="timer"></span>
-                </button> -->
+                </button>
                 <button type="button" class="btn btn-danger"
                         v-on:click="store.dispatch('DELETE_SELECTED_NOTE')"
-                        v-if="store.getters.hasSelection">
+                        v-if="hasSelection">
                   <span class="oi" data-glyph="trash"></span>
                 </button>
               </div>
-              <div class="col-4 text-center">
-                <button type='button' class='btn btn-light'
-                        v-bind:class="{ 'btn-info': store.getters.isEditing }"
+              <div class="col-4 text-center button-bar">
+                <button type='button' class='btn'
+                        v-bind:class="{ 'btn-info': isEditing, 'btn-light': !isEditing }"
                         v-on:click="store.dispatch('EDIT_SELECTED_NOTE')">
                   <span class="oi" data-glyph="pencil"></span>
                 </button>
-                <button type="button" class="btn btn-light"
-                        v-bind:class="{ 'btn-info': !store.getters.isEditing }"
+                <button type="button" class="btn"
+                        v-bind:class="{ 'btn-info': !isEditing, 'btn-light': isEditing }"
                         v-on:click="store.dispatch('VIEW_SELECTED_NOTE')">
                   <span class="oi" data-glyph="eye"></span>
                 </button>
@@ -155,40 +155,49 @@
                 </div>
               </div>
             </div>
-            <div class="row edit-view" v-show="store.getters.isEditing">
-              <!-- 
-              <div class="row versioning" v-show="showVersionControl" style="display: none">
+
+            <div class="row edit-view" v-show="isEditing">
+              <div class="row versioning" v-show="isVersioning" style="display: none">
                 <div class="col-4 text-right label">
-                  {{ getSelectedVersionDate() }}
-                  ({{ parseInt(selectedNoteVersion) + 1 }}/{{ selectedNote.versions.length }})
+                  {{ selectionVersion.createdAt }}
+                  ({{ parseInt(versionNumber) + 1 }}/{{ selection.versions.length }})
                 </div>
                 <div class="col-4">
-                  <input type="range" min="0" v-bind:max="selectedNote.versions.length-1" value="0" v-model="selectedNoteVersion" class="form-control">
+                  <input type="range" min="0" class="form-control"
+                         v-bind:max="selection.versions.length-1"
+                         v-bind:value="versionNumber"
+                         v-on:input="e => store.dispatch('CHANGE_VERSION', e.target.value)"
+                         class="form-control">
                 </div>
                 <div class="col-4">
-                  <button type="button" class="btn btn-danger" v-on:click="restoreVersion">Restore</button>
+                  <button type="button" class="btn btn-danger"
+                           v-on:click="store.dispatch('RESTORE_VERSION')">
+                    Restore
+                  </button>
                 </div>
               </div>
-              -->
+
               <input type="text" class="form-control title"
-                     v-model="store.getters.getSelection.title"
+                     v-model="selection.title"
                      v-on:input="/* autoSaveTitle */"
                      placeholder="Title">
               <input type="text" class="form-control tags" placeholder="Tags"
                      v-on:input="/* (e) => { updateSelectedTag(e); autoSaveTags(); } */"
-                     v-bind:value="store.getters.getSelection.tags.join(', ')">
+                     v-bind:value="selection.tags.join(', ')">
               <div class="content-editor">
                 <textarea class="form-control"
-                     v-bind:value="store.getters.getSelection.body"
+                     v-bind:value="store.state.selectedNote.selectedNote.body"
                      v-on:input="/* autoSaveBody */"></textarea>
               </div>
             </div>
-            <div class="row preview-view" v-show="!store.getters.isEditing">
-              <h1><span>{{ store.getters.getSelection.title }}</span></h1>
+
+            <div class="row preview-view" v-show="!isEditing">
+              <h1><span>{{ selection.title }}</span></h1>
               <div class="preview-area">
-                <div v-html="store.getters.getSelection.html"></div>
+                <div v-html="selection.html"></div>
               </div>
             </div>
+
           </div>
         </div>
 

@@ -22,5 +22,6 @@ SELECT_FIRST_NOTE: ({ state, commit, dispatch }) =>
         dispatch('SELECT_NOTE', state.notes[0]) :
         commit('DESELECT_NOTE'),
 
+
 RENDER_MATHJAX: ctx =>
     Vue.nextTick(_ => MathJax.Hub.Queue(["Typeset", MathJax.Hub]))
