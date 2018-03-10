@@ -36,6 +36,13 @@ const app = {
                 callback: _ => store.dispatch('RESTORE_VERSION')
             };
         },
+
+        getSearchUsage: function() {
+            return {
+                body: document.querySelector('#searchUsage').innerHTML,
+                callback: _ => _,
+            };
+        },
     },
 
     beforeMount() {

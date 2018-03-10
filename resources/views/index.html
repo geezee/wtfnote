@@ -70,6 +70,7 @@
                 <input type="text" class="form-control"
                        v-on:input="e => store.dispatch('SEARCH', e.target.value)"
                        placeholder="Search">
+                <span class="search-hint" v-on:click="store.dispatch('MODAL_INFO', getSearchUsage)">?</span>
               </div>
             </div>
             <div class="row">
@@ -206,6 +207,30 @@
         </div>
 
     </div>
+
+    <script type="text/plain" id="searchUsage">
+        A search query is a disjunction of multiple expressions, expressed as such:<br>
+        <center> <em>expr1</em> ; ... ; <em>exprN</em> </center>
+        The operator <em>;</em> is equivalent to the logical OR. Each expression
+        is a conjunction of tokens. Each token can be negated, and its domain
+        can be restricted. In general a token has one of the following shapes:<br>
+        <center>tag:<em>val</em> | title:<em>val</em> | <em>val</em></center>
+        where <em>val</em> is a string without any whitespaces. A token can be
+        negated by prefixing it with ~. An expression is made up of tokens seperated
+        by whitespace. All searches are case insensitive.<br><br>
+
+        <center><strong>tag:music ~tag:jazz ~tag:hiphop<strong></center>
+        will list all the notes with the tag 'music' and without the tags 'jazz',
+        and 'hiphop'.<br><br>
+
+        <center><strong>title:story ; title:novel tag:short</strong></center>
+        will list all the notes that have 'story' in their title, or those with
+        'novel' in their title and tagged with 'short'.<br><br>
+
+        <center><strong>~politics</strong></center>
+        will list all the notes that do not mention 'politics' in their title, body,
+        or tags.<br><br>
+    </script>
 
     <script src="js/vue.js"></script>
     <script src="js/vuex.js"></script>

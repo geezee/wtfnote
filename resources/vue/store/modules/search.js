@@ -14,7 +14,7 @@ function _note_satisfies(searchQuery) {
 
             let inTags = [],
                 inTitle = [],
-                inBody = [];
+                other = [];
 
             tokens.forEach(tk => {
                 const negated = tk.charAt(0) == NEGATED_CHAR;
@@ -34,12 +34,22 @@ function _note_satisfies(searchQuery) {
                         negated: negated
                     });
                 } else {
-                    inBody.push({ val: tk, negated: negated });
+                    other.push({ val: tk, negated: negated });
                 }
             });
 
-            return { tag: inTags, title: inTitle, body: inBody };
+            return { tag: inTags, title: inTitle, other: other };
         });
+
+    _noteHasntTag = (note, { val, negated }) =>
+        note.tags.map(tag => tag.toLowerCase()).indexOf(val) > -1 == negated;
+
+    _noteHasntTitle = (note, { val, negated }) =>
+        note.title.toLowerCase().indexOf(val) > -1 == negated;
+
+    _noteHasntBody = (note, { val, negated }) =>
+        note.versions.length > 0 &&
+        note.versions[0].body.toLowerCase().indexOf(val) > -1 == negated;
 
     return note => {
         for (var i=0; i < ors.length; i++) {
@@ -47,21 +57,25 @@ function _note_satisfies(searchQuery) {
             var satisfied = true;
             
             for (var j=0; j < cond.tag.length && satisfied; j++) {
-                if (note.tags.map(tag => tag.toLowerCase())
-                        .indexOf(cond.tag[j].val) > -1 == cond.tag[j].negated) {
+                if (_noteHasntTag(note, cond.tag[j])) {
                     satisfied = false;
                 }
             }
             for (var j=0; j < cond.title.length && satisfied; j++) {
-                if (note.title.toLowerCase()
-                        .indexOf(cond.title[j].val) > -1 == cond.title[j].negated) {
+                if (_noteHasntTitle(note, cond.title[j])) {
                     satisfied = false;
                 }
             }
-            for (var j=0; j < cond.body.length && satisfied; j++) {
-                if (note.versions.length > 0 &&
-                    note.versions[0].body.toLowerCase()
-                        .indexOf(cond.body[j].val) > -1 == cond.body[j].negated) {
+            for (var j=0; j < cond.other.length && satisfied; j++) {
+                if (!cond.other[j].negated
+                    && _noteHasntBody(note, cond.other[j])
+                    && _noteHasntTitle(note, cond.other[j])
+                    && _noteHasntTag(note, cond.other[j])) {
+                    satisfied = false;
+                } else if (cond.other[j].negated
+                    && (_noteHasntBody(note, cond.other[j])
+                    || _noteHasntTitle(note, cond.other[j])
+                    || _noteHasntTag(note, cond.other[j]))) {
                     satisfied = false;
                 }
             }

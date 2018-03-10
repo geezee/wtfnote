@@ -49,7 +49,7 @@ CREATE_NOTE: ({ state, commit, dispatch }) =>
     }),
 
 MODAL_INFO: ({ commit, dispatch }, payload) => {
-    commit('SET_MODAL_STATE', 0, {
+    commit('SET_MODAL_STATE', {
         ...payload,
         type: 0,
     });
