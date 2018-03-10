@@ -2,7 +2,10 @@ LOAD_NOTES: ({ commit, state }) =>
     new Promise((resolve, reject) => {
         Vue.http.get("./api/note/all?__nocache="+Math.random())
             .then(request => {
-                state.notes = request.body;
+                state.notes = request.body.map(note => {
+                    note.visible = true;  
+                    return note;
+                });
                 commit('SORT_NOTES');
                 resolve();
             }, error => {
@@ -69,3 +72,14 @@ MODAL_ERROR: ({ commit, dispatch }, payload) => {
     dispatch('SHOW_MODAL');
 },
 
+SEARCH: ({ state, commit }, searchQuery) => {
+    commit('APPLY_QUERY', {
+        searchQuery: searchQuery,
+        notes: state.notes
+    });
+
+    state.notes = state.notes.map(note => {
+        note.visible = state.search.result[note.id];
+        return note;
+    });
+},

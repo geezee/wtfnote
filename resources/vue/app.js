@@ -80,6 +80,7 @@ const app = {
 
             Vue.set(store.state.selectedNote.selectedNote, 'tags', cleanTags);
         },
+        
     }
 
 };
