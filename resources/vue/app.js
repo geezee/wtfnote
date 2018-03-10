@@ -19,7 +19,23 @@ const app = {
             selectionVersion: 'getSelectionVersion',
             lastSaved: 'getLastSaved',
             saving: 'isSaving',
-        })
+            modal: 'getModal',
+        }),
+
+        getDeleteWarning: function() {
+            return {
+                body: `Are you sure you want to delete <strong>${this.selection.title}</strong>?`,
+                callback: _ => store.dispatch('DELETE_SELECTED_NOTE')
+            };
+        },
+
+        getRestoreWarning: function() {
+            return {
+                body: `Are you sure you want to restore <strong>${this.selection.title}</strong> ` +
+                      `to the version of ${this.selectionVersion.createdAt}?`,
+                callback: _ => store.dispatch('RESTORE_VERSION')
+            };
+        },
     },
 
     beforeMount() {
@@ -43,7 +59,9 @@ const app = {
         },
 
         getNoteTitlePreview: function(note) {
-            return note.title.length < 25 ? note.title : note.title.substring(0, 25).replace(/\s*$/, '')+'..';
+            return note.title.length < 25 ?
+                note.title :
+                note.title.substring(0, 25).replace(/\s*$/, '')+'..';
         },
 
         getSelectedNoteTags: function() {

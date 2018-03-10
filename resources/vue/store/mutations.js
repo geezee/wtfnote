@@ -21,7 +21,5 @@ SORT_NOTES: state =>
     }),
 
 
-REMOVE_NOTE: (state, id) => {
-    console.log(id);
-    state.notes = state.notes.filter(note => note.id != id);
-},
+REMOVE_NOTE: (state, id) =>
+    state.notes = state.notes.filter(note => note.id != id),

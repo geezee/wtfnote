@@ -15,18 +15,17 @@
   <body>
     <div id="app" class="container-fluid">
 
-      <!--
         <div class="modal fade open" v-show="modal.visible">
-        <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-body" v-html="modal.text"></div>
-        <div class="modal-footer">
-        <button class="btn btn-secondary" v-on:click="modal.visible = false;">Cancel</button>
-        <button class="btn btn-danger" v-on:click="executeModal()">{{ modal.button }}</button>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body" v-html="modal.body"></div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" v-on:click="store.dispatch('CLOSE_MODAL')">Cancel</button>
+                        <button class="btn btn-danger" v-on:click="store.dispatch('CONFIRM_MODAL')">Confirm</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        </div>
-        </div>
-        </div> -->
 
 
         <!--
@@ -124,7 +123,7 @@
                   <span class="oi" data-glyph="timer"></span>
                 </button>
                 <button type="button" class="btn btn-danger"
-                        v-on:click="store.dispatch('DELETE_SELECTED_NOTE')"
+                          v-on:click="store.dispatch('MODAL_WARN', getDeleteWarning)"
                         v-if="hasSelection">
                   <span class="oi" data-glyph="trash"></span>
                 </button>
@@ -170,7 +169,7 @@
                 </div>
                 <div class="col-4">
                   <button type="button" class="btn btn-danger"
-                           v-on:click="store.dispatch('RESTORE_VERSION')">
+                           v-on:click="store.dispatch('MODAL_WARN', getRestoreWarning)">
                     Restore
                   </button>
                 </div>

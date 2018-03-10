@@ -63,12 +63,12 @@ const AutoSave = {
             }
             return new Promise((resolve, reject) => {
                 state.timer = setTimeout(
-                    () => dispatch('FLUSH').then(resolve, reject),
+                    () => dispatch('FLUSH_AUTOSAVE_QUEUE').then(resolve, reject),
                     state.delay);
             });
         },
 
-        FLUSH: ({ state, getters, commit }) => {
+        FLUSH_AUTOSAVE_QUEUE: ({ state, getters, commit }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.hasSelection) return;
                 if (!state.titleDirty && !state.tagsDirty && !state.bodyDirty) return;

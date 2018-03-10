@@ -12,7 +12,7 @@ LOAD_NOTES: ({ commit, state }) =>
 
 
 SELECT_NOTE: ({ commit, dispatch }, note) => {
-    dispatch('FLUSH');
+    dispatch('FLUSH_AUTOSAVE_QUEUE');
     commit('SELECT_NOTE', note);
     commit('UPDATE_BODY');
 },
@@ -44,4 +44,28 @@ CREATE_NOTE: ({ state, commit, dispatch }) =>
             commit('SORT_NOTES');
         });
     }),
+
+MODAL_INFO: ({ commit, dispatch }, payload) => {
+    commit('SET_MODAL_STATE', 0, {
+        ...payload,
+        type: 0,
+    });
+    dispatch('SHOW_MODAL');
+},
+
+MODAL_WARN: ({ commit, dispatch }, payload) => {
+    commit('SET_MODAL_STATE', {
+        ...payload,
+        type: 1,
+    });
+    dispatch('SHOW_MODAL');
+},
+
+MODAL_ERROR: ({ commit, dispatch }, payload) => {
+    commit('SET_MODAL_STATE', {
+        ...payload,
+        type: 2,
+    });
+    dispatch('SHOW_MODAL');
+},
 
