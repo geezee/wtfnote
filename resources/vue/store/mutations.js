@@ -27,3 +27,11 @@ REMOVE_NOTE: (state, id) =>
 
 ADD_VERSION_NOTE: (state, { noteId, version }) =>
     state.notes.filter(note => note.id == noteId)[0].versions.splice(0, 0, version),
+
+REMOVE_NOTE_ATTACHMENT: (state, { noteId, index }) => {
+    Vue.delete(state.notes.filter(note => note.id == noteId)[0].attachments, index);
+    if (state.selectedNote.selectedNote.id == noteId &&
+        state.selectedNote.selectedNote.attachments.length == 0) {
+        state.selectedNote.selectedNote.hasAttachment = false;
+    }
+},

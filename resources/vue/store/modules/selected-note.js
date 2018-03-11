@@ -20,6 +20,7 @@ const SelectedNote = {
         SELECT_NOTE: (state, note) => {
             state.selectedNote = note,
             state.versionNumber = 0;
+            state.selectedNote.hasAttachment = note.attachments.length > 0;
             if (note.versions.length > 0) {
                 state.selectedNote.createdAt = note.versions[0].createdAt;
             }
@@ -52,6 +53,7 @@ const SelectedNote = {
         isEditing: state => state.editing,
         isVersioning: state => state.versioning,
         getVersionNumber: state => state.versionNumber,
+        hasAttachment: state => state.selectedNote.attachments.length > 0,
         getSelectionVersion: state =>
             (state.selectedNote.id != emptyNote.id && state.selectedNote.versions.length > 0) ?
                 state.selectedNote.versions[state.versionNumber] :

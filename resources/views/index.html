@@ -28,30 +28,32 @@
         </div>
 
 
-        <!--
-        <div class="modal attachment fade open" v-show="attachmentWindowVisible">
+        <div class="modal attachment fade open" v-show="store.state.attachments.visible">
           <div class="modal-dialog">
             <div class="modal-content">
-              <div class="modal-header">
-                <span class="oi" data-glyph="x" v-on:click="hideAttachmentWindow()"></span>
-              </div>
               <div class="modal-body">
-                <ul v-for="(uri, index) in selectedNote.attachments">
-                  <li>
-                    <a v-bind:href="uri" target="_blank" class="uri">{{ uri.split('/').slice(-1)[0] }}</a>
-                    <span class="oi delete" data-glyph="x" style="float: right" v-on:click="deleteAttachment(index)"></span>
-                  </li>
-                </ul>
+                <div class="row" v-for="(uri, index) in selection.attachments">
+                  <div class="col-11">
+                    <a v-bind:href="uri" target="_blank" class="uri">
+                      {{ uri.split('/').slice(-1)[0] }}</a>
+                  </div>
+                  <div class="col-1 text-right">
+                    <span class="oi delete" data-glyph="x" style="float: right"
+                          v-on:click="store.dispatch('DELETE_ATTACHMENT', { note: selection.id, uri: uri, index: index })"></span>
+                  </div>
+                </div>
               </div>
               <div class="modal-footer">
                 <form action="./upload" enctype="multipart/form-data" method="post">
                   <div class="row">
                     <div class="col-6">
-                      <input type="hidden" name="note_id" v-bind:value="selectedNote.id">
+                      <input type="hidden" name="note_id" v-bind:value="selection.id">
                       <input type="file" name="file" style="width: 100%">
                     </div>
                     <div class="col-6 text-right">
                       <input type="submit" class="btn btn-warning" value="Upload">
+                      <input type="button" class="btn btn-info" value="Close"
+                             v-on:click="store.dispatch('HIDE_ATTACHMENTS')">
                     </div>
                   </div>
                 </form>
@@ -59,7 +61,6 @@
             </div>
           </div>
         </div>
-        -->
 
 
         <div class="row">
@@ -104,10 +105,12 @@
                         v-on:click="store.dispatch('CREATE_NOTE')">
                   <span class="oi" data-glyph="plus"></span>
                 </button>
-                <!-- <button type="button" class="btn" v-on:click="showAttachmentWindow()"
-                                               v-bind:class="{ 'btn-warning': selectedNote.hasAttachment, 'btn-light': !selectedNote.hasAttachment }" v-if="!isEmpty">
+                <button type="button" class="btn"
+                        v-on:click="store.dispatch('SHOW_ATTACHMENTS')"
+                        v-bind:class="{ 'btn-warning': selection.hasAttachment, 'btn-light': !selection.hasAttachment }"
+                        v-if="hasSelection">
                   <span class="oi" data-glyph="paperclip"></span>
-                </button> -->
+                </button>
                 <button type="button" class="btn" v-on:click="store.dispatch('TOGGLE_PIN_SELECTED_NOTE')"
                         v-bind:class="{ 'btn-success': selection.isPinned, 'btn-light': !selection.isPinned }"
                         v-if="hasSelection">
@@ -209,27 +212,28 @@
     </div>
 
     <script type="text/plain" id="searchUsage">
-        A search query is a disjunction of multiple expressions, expressed as such:<br>
-        <center> <em>expr1</em> ; ... ; <em>exprN</em> </center>
-        The operator <em>;</em> is equivalent to the logical OR. Each expression
-        is a conjunction of tokens. Each token can be negated, and its domain
-        can be restricted. In general a token has one of the following shapes:<br>
+        A search query is a disjunction of multiple expressions, expressed as
+        such:<br> <center> <em>expr1</em> ; ... ; <em>exprN</em> </center> The
+        operator <em>;</em> is equivalent to the logical OR. Each expression is
+        a conjunction of tokens. Each token can be negated, and its domain can
+        be restricted. In general a token has one of the following shapes:<br>
         <center>tag:<em>val</em> | title:<em>val</em> | <em>val</em></center>
-        where <em>val</em> is a string without any whitespaces. A token can be
-        negated by prefixing it with ~. An expression is made up of tokens seperated
-        by whitespace. All searches are case insensitive.<br><br>
+        where <em>val</em> is a string without any whitespaces. The decorators
+        <em>tag:</em> and <em>title:</em> are used to restrict the 
+        search to only the tags, or only the title respectively. A token can be
+        negated by prefixing it with ~. An expression is made up of tokens
+        seperated by whitespace. All searches are case insensitive.<br><br>
 
-        <center><strong>tag:music ~tag:jazz ~tag:hiphop<strong></center>
-        will list all the notes with the tag 'music' and without the tags 'jazz',
+        <center><strong>tag:music ~tag:jazz ~tag:hiphop<strong></center> will
+        list all the notes with the tag 'music' and without the tags 'jazz',
         and 'hiphop'.<br><br>
 
         <center><strong>title:story ; title:novel tag:short</strong></center>
         will list all the notes that have 'story' in their title, or those with
         'novel' in their title and tagged with 'short'.<br><br>
 
-        <center><strong>~politics</strong></center>
-        will list all the notes that do not mention 'politics' in their title, body,
-        or tags.<br><br>
+        <center><strong>~politics</strong></center> will list all the notes
+        that do not mention 'politics' in their title, body, or tags.<br><br>
     </script>
 
     <script src="js/vue.js"></script>

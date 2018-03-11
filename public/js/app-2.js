@@ -17,6 +17,7 @@ const SelectedNote = {
         SELECT_NOTE: (state, note) => {
             state.selectedNote = note,
                 state.versionNumber = 0;
+            state.selectedNote.hasAttachment = note.attachments.length > 0;
             if (note.versions.length > 0) {
                 state.selectedNote.createdAt = note.versions[0].createdAt;
             }
@@ -36,6 +37,7 @@ const SelectedNote = {
         isEditing: state => state.editing,
         isVersioning: state => state.versioning,
         getVersionNumber: state => state.versionNumber,
+        hasAttachment: state => state.selectedNote.attachments.length > 0,
         getSelectionVersion: state => (state.selectedNote.id != emptyNote.id && state.selectedNote.versions.length > 0) ? state.selectedNote.versions[state.versionNumber] : {
             createdAt: '',
             body: ''
@@ -356,12 +358,44 @@ const Search = {
         },
     }
 }
+const Attachments = {
+    state: {
+        visible: false
+    },
+    mutations: {},
+    actions: {
+        SHOW_ATTACHMENTS: ({
+            state
+        }) => state.visible = true,
+        HIDE_ATTACHMENTS: ({
+            state
+        }) => state.visible = false,
+        DELETE_ATTACHMENT: ({
+            commit
+        }, {
+            note,
+            uri,
+            index
+        }) => new Promise((resolve, reject) => {
+            Vue.http.post('/api/attachment/delete', {
+                uri: uri
+            }).then(response => {
+                commit('REMOVE_NOTE_ATTACHMENT', {
+                    noteId: note,
+                    index: index
+                });
+                if (typeof resolve === "function") resolve();
+            }, reject);
+        }),
+    }
+}
 const store = new Vuex.Store({
     modules: {
         selectedNote: SelectedNote,
         autoSave: AutoSave,
         modal: Modal,
         search: Search,
+        attachments: Attachments
     },
     plugins: [createLogger()],
     state: {
@@ -483,6 +517,15 @@ const store = new Vuex.Store({
             noteId,
             version
         }) => state.notes.filter(note => note.id == noteId)[0].versions.splice(0, 0, version),
+        REMOVE_NOTE_ATTACHMENT: (state, {
+            noteId,
+            index
+        }) => {
+            Vue.delete(state.notes.filter(note => note.id == noteId)[0].attachments, index);
+            if (state.selectedNote.selectedNote.id == noteId && state.selectedNote.selectedNote.attachments.length == 0) {
+                state.selectedNote.selectedNote.hasAttachment = false;
+            }
+        },
     },
 });
 const app = {

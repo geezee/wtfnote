@@ -2,6 +2,7 @@
 // require ./modules/auto-save.js
 // require ./modules/modal.js
 // require ./modules/search.js
+// require ./modules/attachments.js
 
 const store = new Vuex.Store({
     modules: {
@@ -9,6 +10,7 @@ const store = new Vuex.Store({
         autoSave: AutoSave,
         modal: Modal,
         search: Search,
+        attachments: Attachments
     },
 
     plugins: [ createLogger() ],
