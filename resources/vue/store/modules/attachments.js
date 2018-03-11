@@ -1,0 +1,7 @@
+const Attachments = {
+    mutations: {
+    },
+
+    actions: {
+    }
+}

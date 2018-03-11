@@ -146,7 +146,7 @@
                 <div class="saving-msg" v-show="saving">
                   Saving...
                 </div>
-                <div class="saving-msg" v-if="lastSaved.length > 0">
+                <div class="saving-msg" v-if="lastSaved.length > 0 && !saving">
                   Last saved {{ lastSaved }}
                 </div>
               </div>
@@ -190,7 +190,7 @@
                      v-bind:value="selection.tags.join(', ')">
               <div class="content-editor">
                 <textarea class="form-control"
-                     v-bind:value="store.state.selectedNote.selectedNote.body"
+                     v-model="store.state.selectedNote.selectedNote.body"
                      :disabled="saving"
                      v-on:input="(e) => store.dispatch('SAVE_BODY', e.target.value)"></textarea>
               </div>

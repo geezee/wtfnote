@@ -73,23 +73,28 @@ const AutoSave = {
                 if (!getters.hasSelection) return;
                 if (!state.titleDirty && !state.tagsDirty && !state.bodyDirty) return;
 
+                if (!state.timer != null) {
+                    clearTimeout(state.timer);
+                }
+
                 let payload = {
                     modified: getters.getModifications,
                     note: getters.getModificationsOfSelectedNote
                 };
 
                 state.saving = true;
-                Vue.http.post(`./api/note/${getters.getSelection.id}/update`, payload)
+                const note_id = getters.getSelection.id;
+
+                Vue.http.post(`./api/note/${note_id}/update`, payload)
                     .then((request) => {
                         if (state.bodyDirty) {
-                            const currentDateTokens = new Date().toISOString()
-                                    .match(/(\d{4}\-\d{2}\-\d{2})T(\d{2}:\d{2}:\d{2})/);
-                            getters.getSelection.versions.splice(0, 0,
-                                {
+                            commit('ADD_VERSION_NOTE', {
+                                noteId: note_id,
+                                version: {
                                     body: request.body.note.body,
-                                    createdAt: currentDateTokens[1] + ' ' + currentDateTokens[2]
-                                });
-                            commit('UPDATE_BODY');
+                                    createdAt: request.body.timestamp
+                                }
+                            });
                         }
                         state.saving = false;
                         commit('MARK_UPTODATE');

@@ -4,6 +4,7 @@ LOAD_NOTES: ({ commit, state }) =>
             .then(request => {
                 state.notes = request.body.map(note => {
                     note.visible = true;  
+                    note.body = note.versions.length == 0 ? '' : note.versions[0].body;
                     return note;
                 });
                 commit('SORT_NOTES');
@@ -14,10 +15,12 @@ LOAD_NOTES: ({ commit, state }) =>
     }),
 
 
-SELECT_NOTE: ({ commit, dispatch }, note) => {
+SELECT_NOTE: ({ commit, dispatch, getters }, note) => {
     dispatch('FLUSH_AUTOSAVE_QUEUE');
     commit('SELECT_NOTE', note);
-    commit('UPDATE_BODY');
+    if (!getters.isEditing) {
+        dispatch('VIEW_SELECTED_NOTE');
+    }
 },
         
 

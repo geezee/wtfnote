@@ -16,7 +16,8 @@ const store = new Vuex.Store({
     state: {
         notes: [],
     },
-    getters: {},
+    getters: {
+    },
 
     actions: {
         // include_b ./actions.js

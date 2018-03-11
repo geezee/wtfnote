@@ -1,6 +1,7 @@
 const emptyNote = {
     id: 0,
     title: '',
+    body: '',
     tags: [],
     attachments: [],
     versions: []
@@ -18,7 +19,6 @@ const SelectedNote = {
     mutations: {
         SELECT_NOTE: (state, note) => {
             state.selectedNote = note,
-            state.selectedNote.body = '';
             state.versionNumber = 0;
             if (note.versions.length > 0) {
                 state.selectedNote.createdAt = note.versions[0].createdAt;
@@ -26,15 +26,16 @@ const SelectedNote = {
         },
 
         UPDATE_BODY: state =>
-            Vue.set(state.selectedNote, 'body', state.selectedNote.versions.length > 0 ?
-                state.selectedNote.versions[state.versionNumber].body : ''),
+            state.selectedNote.body =
+                state.selectedNote.versions.length > state.versionNumber ?
+                    state.selectedNote.versions[state.versionNumber].body : '',
 
         DESELECT_NOTE: state =>
             state.selectedNote = emptyNote,
 
         RENDER_SELECTED_NOTE: state =>
             state.selectedNote.html = new showdown.Converter()
-                .makeHtml(state.selectedNote.versions[state.versionNumber].body)
+                .makeHtml(state.selectedNote.body)
                 .replace(/\$asciinema\([^\)\(]+\)/g, match => {
                     var filename = match.substring(11).slice(0, -1);
                     var path = ['./attachments', store.getters.getSelection.id, filename].join('/');
@@ -73,8 +74,12 @@ const SelectedNote = {
                 }, reject);
             }),
 
-        TOGGLE_VERSIONING: ({ state }) =>
-            state.versioning = !state.versioning,
+        TOGGLE_VERSIONING: ({ state, dispatch }) => {
+            state.versioning = !state.versioning;
+            if (state.versioning) {
+                dispatch('EDIT_SELECTED_NOTE');
+            }
+        },
 
         DELETE_SELECTED_NOTE: ({ state, dispatch, commit, getters }) =>
             new Promise((resolve, reject) => {
@@ -115,6 +120,7 @@ const SelectedNote = {
 
         VIEW_SELECTED_NOTE: ({ state, commit, dispatch }) => {
             state.editing = false;
+            state.versioning = false;
             commit('RENDER_SELECTED_NOTE');
             dispatch('RENDER_MATHJAX');
         }

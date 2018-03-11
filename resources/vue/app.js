@@ -56,10 +56,7 @@ const app = {
 
     methods: {
         getNoteBodyPreview: function(note) {
-            if (note.versions.length == 0 || note.versions[0].body == null) {
-                return "";
-            }
-            var line = note.versions[0].body.split('\n')[0];
+            var line = note.body.split('\n')[0];
             if (line.length > 100) {
                 return line.substring(0, 100)+"...";
             } else return line;

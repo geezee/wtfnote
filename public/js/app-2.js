@@ -1,6 +1,7 @@
 const emptyNote = {
     id: 0,
     title: '',
+    body: '',
     tags: [],
     attachments: [],
     versions: []
@@ -15,15 +16,14 @@ const SelectedNote = {
     mutations: {
         SELECT_NOTE: (state, note) => {
             state.selectedNote = note,
-                state.selectedNote.body = '';
-            state.versionNumber = 0;
+                state.versionNumber = 0;
             if (note.versions.length > 0) {
                 state.selectedNote.createdAt = note.versions[0].createdAt;
             }
         },
-        UPDATE_BODY: state => Vue.set(state.selectedNote, 'body', state.selectedNote.versions.length > 0 ? state.selectedNote.versions[state.versionNumber].body : ''),
+        UPDATE_BODY: state => state.selectedNote.body = state.selectedNote.versions.length > state.versionNumber ? state.selectedNote.versions[state.versionNumber].body : '',
         DESELECT_NOTE: state => state.selectedNote = emptyNote,
-        RENDER_SELECTED_NOTE: state => state.selectedNote.html = new showdown.Converter().makeHtml(state.selectedNote.versions[state.versionNumber].body).replace(/\$asciinema\([^\)\(]+\)/g, match => {
+        RENDER_SELECTED_NOTE: state => state.selectedNote.html = new showdown.Converter().makeHtml(state.selectedNote.body).replace(/\$asciinema\([^\)\(]+\)/g, match => {
             var filename = match.substring(11).slice(0, -1);
             var path = ['./attachments', store.getters.getSelection.id, filename].join('/');
             return `<asciinema-player src="${path}"></asciinema-player>`;
@@ -58,8 +58,14 @@ const SelectedNote = {
             }, reject);
         }),
         TOGGLE_VERSIONING: ({
-            state
-        }) => state.versioning = !state.versioning,
+            state,
+            dispatch
+        }) => {
+            state.versioning = !state.versioning;
+            if (state.versioning) {
+                dispatch('EDIT_SELECTED_NOTE');
+            }
+        },
         DELETE_SELECTED_NOTE: ({
             state,
             dispatch,
@@ -106,6 +112,7 @@ const SelectedNote = {
             dispatch
         }) => {
             state.editing = false;
+            state.versioning = false;
             commit('RENDER_SELECTED_NOTE');
             dispatch('RENDER_MATHJAX');
         }
@@ -190,19 +197,24 @@ const AutoSave = {
             return new Promise((resolve, reject) => {
                 if (!getters.hasSelection) return;
                 if (!state.titleDirty && !state.tagsDirty && !state.bodyDirty) return;
+                if (!state.timer != null) {
+                    clearTimeout(state.timer);
+                }
                 let payload = {
                     modified: getters.getModifications,
                     note: getters.getModificationsOfSelectedNote
                 };
                 state.saving = true;
-                Vue.http.post(`./api/note/${getters.getSelection.id}/update`, payload).then((request) => {
+                const note_id = getters.getSelection.id;
+                Vue.http.post(`./api/note/${note_id}/update`, payload).then((request) => {
                     if (state.bodyDirty) {
-                        const currentDateTokens = new Date().toISOString().match(/(\d{4}\-\d{2}\-\d{2})T(\d{2}:\d{2}:\d{2})/);
-                        getters.getSelection.versions.splice(0, 0, {
-                            body: request.body.note.body,
-                            createdAt: currentDateTokens[1] + ' ' + currentDateTokens[2]
+                        commit('ADD_VERSION_NOTE', {
+                            noteId: note_id,
+                            version: {
+                                body: request.body.note.body,
+                                createdAt: request.body.timestamp
+                            }
                         });
-                        commit('UPDATE_BODY');
                     }
                     state.saving = false;
                     commit('MARK_UPTODATE');
@@ -364,6 +376,7 @@ const store = new Vuex.Store({
             Vue.http.get("./api/note/all?__nocache=" + Math.random()).then(request => {
                 state.notes = request.body.map(note => {
                     note.visible = true;
+                    note.body = note.versions.length == 0 ? '' : note.versions[0].body;
                     return note;
                 });
                 commit('SORT_NOTES');
@@ -374,11 +387,14 @@ const store = new Vuex.Store({
         }),
         SELECT_NOTE: ({
             commit,
-            dispatch
+            dispatch,
+            getters
         }, note) => {
             dispatch('FLUSH_AUTOSAVE_QUEUE');
             commit('SELECT_NOTE', note);
-            commit('UPDATE_BODY');
+            if (!getters.isEditing) {
+                dispatch('VIEW_SELECTED_NOTE');
+            }
         },
         SELECT_FIRST_NOTE: ({
             state,
@@ -463,6 +479,10 @@ const store = new Vuex.Store({
             else return (new Date(b.versions[0].createdAt)).valueOf() - (new Date(a.versions[0].createdAt)).valueOf();
         }),
         REMOVE_NOTE: (state, id) => state.notes = state.notes.filter(note => note.id != id),
+        ADD_VERSION_NOTE: (state, {
+            noteId,
+            version
+        }) => state.notes.filter(note => note.id == noteId)[0].versions.splice(0, 0, version),
     },
 });
 const app = {
@@ -510,10 +530,7 @@ const app = {
     },
     methods: {
         getNoteBodyPreview: function(note) {
-            if (note.versions.length == 0 || note.versions[0].body == null) {
-                return "";
-            }
-            var line = note.versions[0].body.split('\n')[0];
+            var line = note.body.split('\n')[0];
             if (line.length > 100) {
                 return line.substring(0, 100) + "...";
             } else return line;

@@ -23,3 +23,7 @@ SORT_NOTES: state =>
 
 REMOVE_NOTE: (state, id) =>
     state.notes = state.notes.filter(note => note.id != id),
+
+
+ADD_VERSION_NOTE: (state, { noteId, version }) =>
+    state.notes.filter(note => note.id == noteId)[0].versions.splice(0, 0, version),
