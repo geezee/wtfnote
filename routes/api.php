@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 // Returns all the notes in the database with their versions
 Route::group(['middleware' => ['web']], function() {
     Route::get('/note/all', 'ApiController@getAllNotes');
-    Route::get('/note/{id}/create', 'ApiController@create');
+    Route::get('/note/create', 'ApiController@create');
     Route::get('/note/{id}/delete', 'ApiController@delete');
     Route::post('/note/{id}/setPin', 'ApiController@setPin');
     Route::post('/note/{id}/update', 'ApiController@update');

@@ -24,23 +24,22 @@ the release of 1.0-beta.
 
 ## Milestones for 1.0
 - ~~Add warnings before deleting/restoring a note.~~
-- Add a hint on how to use the search bar.
+- ~~Add a hint on how to use the search bar.~~
 - Add tooltips to all buttons.
 - ~~Add the ability to change the password.~~
 - Create a mobile interface.
 * Add decent README file with detailed installation guide.
 * ~~Support for [asciinema](https://asciinema.org/)!~~ *BONUS: rudimentary
   attachment system*.
+* Use websocket instead of a RESTful API (will keep the RESTful interface).
+* Support for concurrency.
+* Store note history as diffs.
 
 ## Potential Future Features
 - Group notes in folders.
 - Syntax Highlighting in notes.
 - Publishing notes (i.e. public notes with a url).
-- Make the API public.
-- Store the notes encrypted.
-- Use websocket instead of a RESTful API.
-- Support for concurrency.
-- Improve on the storage of history.
+- Make the API public (use oauth?).
 
 # License
 This project is licensed under the MIT License.

@@ -37,7 +37,10 @@ a {
   background: rgba(0, 0, 0, 0.4); }
   .modal .modal-content {
     border-radius: 0;
-    margin-top: 20%; }
+    margin-top: 30%; }
+    .modal .modal-content .modal-body {
+      max-height: 350px;
+      overflow-y: scroll; }
   .modal.open {
     display: block;
     opacity: 1; }
@@ -70,7 +73,7 @@ a {
   background: #333;
   padding: 5px;
   color: #f0f0f0;
-  font-size: 0.7em;
+  font-size: 14px;
   margin-left: 50px;
   margin-top: 10px; }
 
@@ -91,8 +94,26 @@ a {
   max-width: 300px; }
   .left .col-12 {
     padding: 0; }
-  .left .search .form-control {
-    border: 0; }
+  .left .search {
+    position: relative; }
+    .left .search .form-control {
+      border: 0;
+      padding-right: 32px; }
+    .left .search .search-hint {
+      font-size: 12px;
+      right: 10px;
+      top: 10px;
+      position: absolute;
+      cursor: pointer;
+      background: #666;
+      font-weight: bold;
+      color: #fff;
+      display: block;
+      border-radius: 10px;
+      width: 15px;
+      height: 15px;
+      text-align: center;
+      line-height: 18px; }
   .left .list-group-item {
     border-radius: 0;
     border: 0;
@@ -134,12 +155,15 @@ a {
     padding-bottom: 10px;
     background: #f9fcfd;
     min-height: 70px; }
+    .right .status-bar .button-bar {
+      font-size: 0; }
     .right .status-bar .btn {
-      font-size: 1em;
+      font-size: 15px;
       padding: 10px;
       line-height: 0.75em;
       margin: 0;
       display: inline-block;
+      word-spacing: 0;
       border-radius: 0;
       border: 0; }
       .right .status-bar .btn.btn-warning {
@@ -160,7 +184,7 @@ a {
           background-color: #d3e3ed; }
     .right .status-bar .saving-msg {
       font-weight: normal;
-      font-size: 0.6em;
+      font-size: 12px;
       margin-top: 10px;
       width: 100%;
       color: #999; }

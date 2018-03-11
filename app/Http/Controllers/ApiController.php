@@ -50,17 +50,12 @@ class ApiController extends Controller
     }
 
 
-    public function create($noteId) {
-        $note = App\Note::find($noteId);
-        if (!is_null($note)) {
-            return response()->json(makeError('Note exists'));
-        }
-
+    public function create() {
         $note = App\Note::create([ 'title' => '', 'isPinned' => false ]);
-        $note->id = $noteId;
-        $note->save();
 
-        return response()->json(noError());
+        return response()->json([
+          'id' => $note->id
+        ]);
     }
 
 
@@ -87,6 +82,7 @@ class ApiController extends Controller
 
         $modified = $request->input('modified');
         $data = $request->input('note');
+        $timestamp = date('Y-m-d H:i:s');
 
         if (in_array('title', $modified)) {
             $note->title = $data['title'];
@@ -106,11 +102,13 @@ class ApiController extends Controller
             $content = App\Content::create([
                 'body' => $data['body'],
                 'note_id' => $note->id,
-                'createdAt' => date('Y-m-d H:i:s')
+                'createdAt' => $timestamp
             ]);
         }
 
-        return response()->json($request->input());
+        $output = $request->input();
+        $output['timestamp'] = $timestamp;
+        return response()->json($output);
     }
 
 
