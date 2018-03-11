@@ -73,17 +73,30 @@ const app = {
         },
 
         updateSelectedTag: function(e) {
-            const rawTags = e.target.value.split(',');
+            const rawTags = e.target.value.split(/\s+/);
 
             let cleanTags = rawTags
                 .slice(0, rawTags.length - 1)
-                .map(tag => tag.replace(/^\s+/g, '').replace(/\s+$/g, ''))
                 .filter(tag => tag.length > 0);
 
-            cleanTags.push(rawTags[rawTags.length - 1].replace(/^\s+/g, ''));
+            cleanTags.push(rawTags[rawTags.length - 1]);
 
             Vue.set(store.state.selectedNote.selectedNote, 'tags', cleanTags);
         },
+
+        getTags: function() {
+            const freq = store.state.notes.reduce((tags, note) => {
+                note.tags.forEach(tag => {
+                    if (tag in tags) tags[tag] += 1;
+                    else tags[tag] = 1;
+                });
+                return tags;
+            }, {});
+            
+            let sorted = Object.keys(freq).map(key => [key, freq[key]]);
+            sorted.sort((a, b) => b[1] - a[1]);
+            return sorted;
+        }
         
     }
 

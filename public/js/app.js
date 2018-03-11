@@ -366,6 +366,8 @@ function _note_satisfies(searchQuery) {
 const Search = {
     state: {
         result: {}, // map from note id to boolean 'note satisfies query'
+        query: '',
+        tagsVisible: false,
     },
 
     getters: {
@@ -376,8 +378,12 @@ const Search = {
     mutations: {
         APPLY_QUERY: (state, { searchQuery, notes }) => {
             let isValid = _note_satisfies(searchQuery);
+            state.query = searchQuery;
             notes.forEach(note => state.result[note.id] = isValid(note));
         },
+
+        TOGGLE_TAGS_VISIBILITY: state =>
+            state.tagsVisible = !state.tagsVisible,
     }
 }
 
@@ -645,17 +651,30 @@ const app = {
         },
 
         updateSelectedTag: function(e) {
-            const rawTags = e.target.value.split(',');
+            const rawTags = e.target.value.split(/\s+/);
 
             let cleanTags = rawTags
                 .slice(0, rawTags.length - 1)
-                .map(tag => tag.replace(/^\s+/g, '').replace(/\s+$/g, ''))
                 .filter(tag => tag.length > 0);
 
-            cleanTags.push(rawTags[rawTags.length - 1].replace(/^\s+/g, ''));
+            cleanTags.push(rawTags[rawTags.length - 1]);
 
             Vue.set(store.state.selectedNote.selectedNote, 'tags', cleanTags);
         },
+
+        getTags: function() {
+            const freq = store.state.notes.reduce((tags, note) => {
+                note.tags.forEach(tag => {
+                    if (tag in tags) tags[tag] += 1;
+                    else tags[tag] = 1;
+                });
+                return tags;
+            }, {});
+            
+            let sorted = Object.keys(freq).map(key => [key, freq[key]]);
+            sorted.sort((a, b) => b[1] - a[1]);
+            return sorted;
+        }
         
     }
 

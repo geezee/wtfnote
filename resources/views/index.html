@@ -70,8 +70,19 @@
               <div class="col-12">
                 <input type="text" class="form-control"
                        v-on:input="e => store.dispatch('SEARCH', e.target.value)"
+                       v-model="store.state.search.query"
                        placeholder="Search">
                 <span class="search-hint" v-on:click="store.dispatch('MODAL_INFO', getSearchUsage)">?</span>
+                <span v-on:click="store.commit('TOGGLE_TAGS_VISIBILITY')" class="tag-menu">
+                    Tags
+                    <span class="oi" data-glyph="caret-bottom" v-show="!store.state.search.tagsVisible"></span>
+                    <span class="oi" data-glyph="caret-top" v-show="store.state.search.tagsVisible"></span>
+                </span>
+                <div v-if="store.state.search.tagsVisible">
+                  <span class="badge badge-light" v-for="tag in getTags()"
+                        v-on:click="e => store.dispatch('SEARCH', 'tag:'+tag[0])">
+                    {{ tag[0] }} <span class="count">{{ tag[1] }}</span></span>
+                </div>
               </div>
             </div>
             <div class="row">
@@ -190,7 +201,7 @@
               <input type="text" class="form-control tags" placeholder="Tags"
                      v-on:input="(e) => { updateSelectedTag(e); store.dispatch('SAVE_TAGS'); }"
                      :disabled="saving"
-                     v-bind:value="selection.tags.join(', ')">
+                     v-bind:value="selection.tags.join(' ')">
               <div class="content-editor">
                 <textarea class="form-control"
                      v-model="store.state.selectedNote.selectedNote.body"

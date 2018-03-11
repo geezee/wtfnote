@@ -90,6 +90,8 @@ function _note_satisfies(searchQuery) {
 const Search = {
     state: {
         result: {}, // map from note id to boolean 'note satisfies query'
+        query: '',
+        tagsVisible: false,
     },
 
     getters: {
@@ -100,7 +102,11 @@ const Search = {
     mutations: {
         APPLY_QUERY: (state, { searchQuery, notes }) => {
             let isValid = _note_satisfies(searchQuery);
+            state.query = searchQuery;
             notes.forEach(note => state.result[note.id] = isValid(note));
         },
+
+        TOGGLE_TAGS_VISIBILITY: state =>
+            state.tagsVisible = !state.tagsVisible,
     }
 }

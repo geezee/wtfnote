@@ -95,7 +95,8 @@ a {
   .left .col-12 {
     padding: 0; }
   .left .search {
-    position: relative; }
+    position: relative;
+    padding-bottom: 5px; }
     .left .search .form-control {
       border: 0;
       padding-right: 32px; }
@@ -114,6 +115,23 @@ a {
       height: 15px;
       text-align: center;
       line-height: 18px; }
+    .left .search .tag-menu {
+      color: #2474A6;
+      cursor: pointer;
+      padding-left: 10px;
+      font-size: 1em; }
+      .left .search .tag-menu .oi {
+        font-size: 0.6em; }
+    .left .search .badge-light {
+      margin: 0px 5px;
+      cursor: pointer;
+      background: #e0e0e0; }
+      .left .search .badge-light .count {
+        padding-left: 5px;
+        font-size: 0.85em;
+        color: #666;
+        font-family: "Crimson Text", serif;
+        font-weight: bold; }
   .left .list-group-item {
     border-radius: 0;
     border: 0;
