@@ -34,9 +34,9 @@ the release of 1.0-beta.
 * Use websocket instead of a RESTful API (will keep the RESTful interface).
 * Support for concurrency.
 * Store note history as diffs.
+* Syntax Highlighting in notes.
 
 ## Potential Future Features
 - Group notes in folders.
-- Syntax Highlighting in notes.
 - Publishing notes (i.e. public notes with a url).
 - Make the API public (use oauth?).
