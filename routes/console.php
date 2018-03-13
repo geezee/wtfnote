@@ -1,18 +1,19 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
+use App\Console\Commands\NoteFormatter;
 
-/*
-|--------------------------------------------------------------------------
-| Console Routes
-|--------------------------------------------------------------------------
-|
-| This file is where you may define all of your Closure based console
-| commands. Each Closure is bound to a command instance allowing a
-| simple approach to interacting with each command's IO methods.
-|
-*/
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->describe('Display an inspiring quote');
+
+Artisan::command('note-format:list', function () {
+    (new NoteFormatter())->list();
+})->describe('List all available formatters');
+
+
+Artisan::command('note-format:install {plugins*}', function ($plugins) {
+    (new NoteFormatter())->install($plugins);
+})->describe('Install formatters');
+
+
+Artisan::command('note-format:remove {plugins*}', function ($plugins) {
+    (new NoteFormatter())->remove($plugins);
+})->describe('Remove formatters');

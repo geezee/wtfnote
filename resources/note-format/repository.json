@@ -1,0 +1,35 @@
+{
+    "markdown": {
+        "name": "markdown",
+        "description": "Renders the note in markdown",
+        "src": "src\/markdown.js",
+        "installed": true
+    },
+    "iframe": {
+        "name": "iframe",
+        "description": "Play around with iframe attributes or block them",
+        "src": "src\/iframe.js",
+        "args": {
+            "sandbox": [
+                "allow-scripts"
+            ]
+        },
+        "installed": true
+    },
+    "mathjax": {
+        "name": "mathjax",
+        "description": "Render LaTeX equations inside the note",
+        "src": "src\/mathjax.js",
+        "args": [],
+        "installed": true
+    },
+    "asciinema": {
+        "name": "asciinema",
+        "description": "Use $asciinema(attachment_url) to include an asciinema cast",
+        "src": "src\/asciinema.js",
+        "args": {
+            "function_name": "$asciinema"
+        },
+        "installed": true
+    }
+}

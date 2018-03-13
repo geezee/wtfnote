@@ -1,0 +1,1 @@
+function(note) { return "asciinema"; }
