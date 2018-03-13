@@ -1,3 +1,5 @@
+// require ../../note-format/note-format.out.js
+//
 // require ./modules/selected-note.js
 // require ./modules/auto-save.js
 // require ./modules/modal.js

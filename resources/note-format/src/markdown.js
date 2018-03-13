@@ -1,1 +1,5 @@
-function(note) { return "markdown"; }
+function(note) {
+    note.html = 'this is markdown';
+
+    return note;
+}

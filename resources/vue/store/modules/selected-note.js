@@ -34,14 +34,19 @@ const SelectedNote = {
         DESELECT_NOTE: state =>
             state.selectedNote = emptyNote,
 
-        RENDER_SELECTED_NOTE: state =>
-            state.selectedNote.html = new showdown.Converter()
-                .makeHtml(state.selectedNote.body)
-                .replace(/\$asciinema\([^\)\(]+\)/g, match => {
-                    var filename = match.substring(11).slice(0, -1);
-                    var path = ['./attachments', store.getters.getSelection.id, filename].join('/');
-                    return `<asciinema-player src="${path}"></asciinema-player>`;
-                }),
+        RENDER_SELECTED_NOTE: state => {
+            state.selectedNote.html = state.selectedNote.body;
+            state.selectedNote = formatters.reduce(function(note, formatter) {
+                return formatter(note);
+            }, state.selectedNote);
+            // state.selectedNote.html = new showdown.Converter()
+            //     .makeHtml(state.selectedNote.body)
+            //     .replace(/\$asciinema\([^\)\(]+\)/g, match => {
+            //         var filename = match.substring(11).slice(0, -1);
+            //         var path = ['./attachments', store.getters.getSelection.id, filename].join('/');
+            //         return `<asciinema-player src="${path}"></asciinema-player>`;
+            //     }),
+        },
 
         REMOVE_ATTACHMENT: (state, index) =>
             Vue.delete(this.selectedNote.attachments, index),

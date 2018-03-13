@@ -4,16 +4,22 @@ use App\Console\Commands\NoteFormatter;
 
 
 
-Artisan::command('note-format:list', function () {
-    (new NoteFormatter())->list();
-})->describe('List all available formatters');
+Artisan::command('note-format:list {--all}', function ($all) {
+    (new NoteFormatter())->list($all);
+})->describe('List the installed formatters. Use --all for all');
 
 
-Artisan::command('note-format:install {plugins*}', function ($plugins) {
-    (new NoteFormatter())->install($plugins);
-})->describe('Install formatters');
+Artisan::command('note-format:install {--after=} {plugins*}',
+  function ($after, $plugins) {
+    return (new NoteFormatter())->install($after, $plugins);
+})->describe('Install formatters. Use --after= to indicate the index to add at');
 
 
-Artisan::command('note-format:remove {plugins*}', function ($plugins) {
-    (new NoteFormatter())->remove($plugins);
-})->describe('Remove formatters');
+Artisan::command('note-format:remove {plugin}', function ($plugin) {
+    return (new NoteFormatter())->remove($plugin);
+})->describe('Remove a single formatter (by index)');
+
+
+Artisan::command('note-format:compile', function () {
+    return (new NoteFormatter())->writeToOutput();
+})->describe('Generate the note-format.out.js file');

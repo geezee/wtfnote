@@ -5,92 +5,106 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
-class NoteFormatter extends Command
+class NoteFormatter
 {
-    private $map;
+    private $state;
+    private $repo;
 
     public function __construct() {
-        $this->map = $this->getMap();
+        $this->state = $this->getState();
+        $this->repo = $this->getRepositoryMap();
     }
 
     const DIR = "./resources/note-format/";
+    const STATE = "./resources/note-format/state.json";
     const REPOSITORY = "./resources/note-format/repository.json";
     const OUT  = "./resources/note-format/note-format.out.js";
 
 
-    public function getContent() {
+    public function getRepository() {
         return json_decode(File::get(NoteFormatter::REPOSITORY));
     }
 
 
-    public function getMap() {
-        return collect(NoteFormatter::getContent())->reduce(function($map, $plugin) {
+    public function getRepositoryMap() {
+        return collect(NoteFormatter::getRepository())->reduce(function($map, $plugin) {
             $map[$plugin->name] = $plugin;
             return $map;
         });
     }
 
-    public function getInstalled() {
-        return collect(array_keys($this->map))->filter(function($name) {
-            return $this->map[$name]->installed;
-        });
+    public function getState() {
+        return json_decode(File::get(NoteFormatter::STATE));
     }
 
     public function writeToOutput() {
-        $out = "const formatters = {\n";
-        foreach ($this->getInstalled() as $installed) {
-            $out .= sprintf("%s: %s,\n",
-                $installed, File::get($this::DIR.$this->map[$installed]->src));
+        $out = "const formatters=[";
+        foreach ($this->state->installed as $installed) {
+            $out .= sprintf("%s,", File::get($this::DIR.$this->repo[$installed]->src));
         }
-        $out .= "}";
+        $out .= "]";
 
-        File::put($this::OUT, $out);
+        return File::put($this::OUT, $out);
     }
 
 
-    public function list() {
-        $plugins = json_decode(File::get($this::REPOSITORY), true);
-        printf("%d available formatters\n\n", count(array_keys($plugins)));
-        foreach ($plugins as $name=>$plugin) {
-            printf("%s%-20s - %s\n",
-                $plugin["installed"] ? "* " : "  ", $name, $plugin["description"]);
+    public function list($all) {
+        if ($all) {
+            printf("%d available formatters\n\n", count(array_keys($this->repo)));
+            foreach ($this->repo as $plugin) {
+                printf("%s%-20s - %s\n",
+                    in_array($plugin->name, $this->state->installed) ? "* " : "  ",
+                    $plugin->name, $plugin->description);
+            }
+        } else {
+            $index = 1;
+            foreach ($this->state->installed as $name) {
+                printf("%3d. %-20s - %s\n", $index, $name, $this->repo[$name]->description);
+                $index++;
+            }
         }
     }
 
 
-    public function install($requested) {
-        foreach ($requested as $plugin) {
-            if (!isset($this->map[$plugin])) {
-                printf("[ERROR] Formatter $plugin does not exist\n");
-                return;
+    public function install($after, $requested) {
+        if (strlen($after) == 0) {
+            $index = 0;
+        } else {
+            $index = intval($after);
+            if ($index === false || $index > count($this->state->installed)) {
+                printf("[ERROR] Index $after does not exist\n");
+                $this->list(false);
+                return -1;
             }
         }
 
         foreach ($requested as $plugin) {
-            $this->map[$plugin]->installed = true;
-        }
-
-        $this->writeToOutput();
-
-        File::put($this::REPOSITORY, json_encode($this->map, JSON_PRETTY_PRINT));
-    }
-
-
-    public function remove($requested) {
-         foreach ($requested as $plugin) {
-            if (!isset($this->map[$plugin])) {
+            if (!isset($this->repo[$plugin])) {
                 printf("[ERROR] Formatter $plugin does not exist\n");
-                return;
+                return -1;
             }
         }
 
-        foreach ($requested as $plugin) {
-            $this->map[$plugin]->installed = false;
-        }
+        array_splice($this->state->installed, $index, 0, $requested);
 
         $this->writeToOutput();
 
-        File::put($this::REPOSITORY, json_encode($this->map, JSON_PRETTY_PRINT));
+        File::put($this::STATE, json_encode($this->state));
+    }
+
+
+    public function remove($index) {
+        $index = intval($index);
+        if ($index === false || $index <= 0 || $index > count($this->state->installed)) {
+            printf("[ERROR] Index does not exist\n");
+            return;
+        }
+
+         $this->state->installed = collect($this->state->installed)->forget($index-1);
+
+         $this->writeToOutput();
+
+         File::put($this::STATE, json_encode($this->state));
    }
 
     
