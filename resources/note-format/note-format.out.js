@@ -53,55 +53,12 @@ const formatters=[function (body) {
         return new showdown.Converter().makeHtml(body);
     });
 }
-,function (body, note) {
-    return loadScript('asciinema', 'js/asciinema-player.js')
-    .then(() => {
-        return body.replace(/\$asciinema\([^\)\(]+\)/g, match => {
-           var filename = match.substring(11).slice(0, -1);
-           var path = ['./attachments', note.id, filename].join('/');
-           return `<asciinema-player src="${path}"></asciinema-player>`;
-       })
-    });
-}
-,function (body) {
-    return loadScript('mathjax',
-        'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?' +
-        'config=TeX-MML-AM_CHTML')
-    .then(() => {
-        Vue.nextTick(_ => MathJax.Hub.Queue(["Typeset", MathJax.Hub]));
-        return body;
-    });
-}
 ,function (body) {
     var sandbox = document.createElement('div');
     sandbox.innerHTML = body;
 
     Array.from(sandbox.querySelectorAll('iframe')).forEach(iframe => {
         iframe.sandbox = 'allow-scripts allow-same-origin allow-forms';
-    });
-
-    return Promise.resolve(sandbox.innerHTML);
-}
-,function (body, note) {
-    const sandbox = document.createElement('div');
-    sandbox.innerHTML = body;
-
-    Array.from(sandbox.querySelectorAll('code.js')).forEach(elm => {
-        const escaper = document.createElement('textarea');
-        escaper.innerHTML = elm.innerHTML;
-
-        if (escaper.value.split('\n')[0].trim() !== '!eval') {
-            return;
-        }
-
-        const iframe = document.createElement('iframe');
-        iframe.sandbox = 'allow-scripts';
-        iframe.className = 'javascript';
-        iframe.srcdoc = '<script>'
-            + escaper.value.substring(6)
-            + '</script>';
-
-        elm.parentNode.replaceChild(iframe, elm);
     });
 
     return Promise.resolve(sandbox.innerHTML);

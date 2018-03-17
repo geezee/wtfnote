@@ -101,11 +101,11 @@ class NoteFormatter
             return;
         }
 
-         $this->state->installed = collect($this->state->installed)->forget($index-1);
+        $this->state->installed = array_values(collect($this->state->installed)->forget($index-1)->toArray());
 
-         $this->writeToOutput();
+        $this->writeToOutput();
 
-         File::put($this::STATE, json_encode($this->state));
+        File::put($this::STATE, json_encode($this->state));
    }
 
     
