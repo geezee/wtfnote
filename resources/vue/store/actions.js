@@ -37,14 +37,8 @@ RENDER_MATHJAX: ctx =>
 CREATE_NOTE: ({ state, commit, dispatch }) =>
     new Promise((resolve, reject) => {
         Vue.http.get(`./api/note/create`).then(request => {
-            const newNote = {
-                id: request.body.id,
-                title: "",
-                tags: [],
-                attachments: [],
-                versions: [],
-                isPinned: false
-            };
+            let newNote = makeEmptyNote();
+            newNote.id = request.body.id;
             state.notes.push(newNote);
             dispatch('SELECT_NOTE', newNote);
             commit('SORT_NOTES');
