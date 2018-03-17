@@ -30,10 +30,6 @@ SELECT_FIRST_NOTE: ({ state, commit, dispatch }) =>
         commit('DESELECT_NOTE'),
 
 
-RENDER_MATHJAX: ctx =>
-    Vue.nextTick(_ => MathJax.Hub.Queue(["Typeset", MathJax.Hub])),
-
-
 CREATE_NOTE: ({ state, commit, dispatch }) =>
     new Promise((resolve, reject) => {
         Vue.http.get(`./api/note/create`).then(request => {

@@ -35,13 +35,6 @@ const SelectedNote = {
             .then(html => {
                 Vue.set(state.selectedNote, 'html', html);
             });
-            // state.selectedNote.html = new showdown.Converter()
-            //     .makeHtml(state.selectedNote.body)
-            //     .replace(/\$asciinema\([^\)\(]+\)/g, match => {
-            //         var filename = match.substring(11).slice(0, -1);
-            //         var path = ['./attachments', store.getters.getSelection.id, filename].join('/');
-            //         return `<asciinema-player src="${path}"></asciinema-player>`;
-            //     }),
         },
 
         REMOVE_ATTACHMENT: (state, index) =>
@@ -126,7 +119,6 @@ const SelectedNote = {
             state.editing = false;
             state.versioning = false;
             commit('RENDER_SELECTED_NOTE');
-            dispatch('RENDER_MATHJAX');
         }
     }
 
