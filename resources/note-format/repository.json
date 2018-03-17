@@ -18,5 +18,10 @@
         "name": "asciinema",
         "description": "Use $asciinema(attachment_url) to include an asciinema cast",
         "src": "src\/asciinema.js"
+    },
+    "js-eval": {
+        "name": "js-eval",
+        "description": "Evaluate javascript code and display output in an <iframe>",
+        "src": "src\/js-eval.js"
     }
 }

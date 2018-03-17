@@ -252,7 +252,7 @@ a {
     .right .preview-view h1 {
       width: 100%;
       margin-bottom: 30px;
-      font-size: 1em; }
+      font-size: 2em; }
       .right .preview-view h1 span {
         width: 70%;
         display: block;
@@ -264,9 +264,14 @@ a {
         padding-bottom: 15px;
         color: #333333; }
     .right .preview-view .preview-area {
-      padding: 10px 40px; }
+      padding: 10px 40px;
+      width: 100%; }
       .right .preview-view .preview-area pre {
         word-wrap: break-word;
         white-space: pre-wrap; }
+      .right .preview-view .preview-area iframe.javascript {
+        width: 100%;
+        border: 1px solid #DDD;
+        resize: vertical; }
 
 /*# sourceMappingURL=style.css.map */
