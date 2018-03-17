@@ -5,22 +5,28 @@ const formatters=[function(note) {
 }
 ,]
 
-const emptyNote = {
-    id: 0,
-    title: '',
-    body: '',
-    tags: [],
-    attachments: [],
-    versions: []
-};
+function makeEmptyNote() {
+    return {
+        id: 0,
+        title: '',
+        body: '',
+        tags: [],
+        attachments: [],
+        versions: [],
+        isPinned: false,
+        visible: true,
+    };
+}
+
 
 const SelectedNote = {
     
     state: {
-        selectedNote: emptyNote,
+        selectedNote: makeEmptyNote(),
         editing: true,
         versioning: false,
-        versionNumber: 0
+        versionNumber: 0,
+        emptyNoteTemplate: makeEmptyNote(),
     },
 
     mutations: {
@@ -39,7 +45,7 @@ const SelectedNote = {
                     state.selectedNote.versions[state.versionNumber].body : '',
 
         DESELECT_NOTE: state =>
-            state.selectedNote = emptyNote,
+            state.selectedNote = makeEmptyNote(),
 
         RENDER_SELECTED_NOTE: state => {
             state.selectedNote.html = state.selectedNote.body;
@@ -60,14 +66,15 @@ const SelectedNote = {
     },
 
     getters: {
-        hasSelection: state => state.selectedNote.id != emptyNote.id,
+        hasSelection: state => state.selectedNote.id != state.emptyNoteTemplate.id,
         getSelection: state => state.selectedNote,
         isEditing: state => state.editing,
         isVersioning: state => state.versioning,
         getVersionNumber: state => state.versionNumber,
         hasAttachment: state => state.selectedNote.attachments.length > 0,
         getSelectionVersion: state =>
-            (state.selectedNote.id != emptyNote.id && state.selectedNote.versions.length > 0) ?
+            (state.selectedNote.id != state.emptyNoteTemplate.id
+            && state.selectedNote.versions.length > 0) ?
                 state.selectedNote.versions[state.versionNumber] :
                 { createdAt: '', body: '' },
     },
@@ -102,8 +109,8 @@ const SelectedNote = {
                 const selectedNoteId = state.selectedNote.id;
                 Vue.http.get(`./api/note/${selectedNoteId}/delete`)
                     .then(request => {
-                        dispatch('SELECT_FIRST_NOTE');
                         commit('REMOVE_NOTE', selectedNoteId);
+                        dispatch('SELECT_FIRST_NOTE');
                         if (typeof resolve === "function") resolve();
                     }, reject);
             }),
@@ -435,6 +442,7 @@ const Attachments = {
 
 
 
+
 const store = new Vuex.Store({
     modules: {
         selectedNote: SelectedNote,
@@ -492,14 +500,8 @@ RENDER_MATHJAX: ctx =>
 CREATE_NOTE: ({ state, commit, dispatch }) =>
     new Promise((resolve, reject) => {
         Vue.http.get(`./api/note/create`).then(request => {
-            const newNote = {
-                id: request.body.id,
-                title: "",
-                tags: [],
-                attachments: [],
-                versions: [],
-                isPinned: false
-            };
+            let newNote = makeEmptyNote();
+            newNote.id = request.body.id;
             state.notes.push(newNote);
             dispatch('SELECT_NOTE', newNote);
             commit('SORT_NOTES');
