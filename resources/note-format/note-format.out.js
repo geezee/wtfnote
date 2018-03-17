@@ -97,7 +97,9 @@ const formatters=[function (body) {
         const iframe = document.createElement('iframe');
         iframe.sandbox = 'allow-scripts';
         iframe.className = 'javascript';
-        iframe.srcdoc = '<script>' + escaper.value + '</script>';
+        iframe.srcdoc = '<script>'
+            + escaper.value.substring(6)
+            + '</script>';
 
         elm.parentNode.replaceChild(iframe, elm);
     });
