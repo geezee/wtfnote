@@ -27,10 +27,14 @@ const SelectedNote = {
             state.selectedNote = makeEmptyNote(),
 
         RENDER_SELECTED_NOTE: state => {
-            state.selectedNote.html = state.selectedNote.body;
-            state.selectedNote = formatters.reduce(function(note, formatter) {
-                return formatter(note);
-            }, state.selectedNote);
+            // chain all the formatters so one feeds its body to the other
+            formatters.reduce((promise, formatter) =>
+                promise.then(body => formatter(body, state.selectedNote)),
+              Promise.resolve(state.selectedNote.body))
+            // then set the html property
+            .then(html => {
+                Vue.set(state.selectedNote, 'html', html);
+            });
             // state.selectedNote.html = new showdown.Converter()
             //     .makeHtml(state.selectedNote.body)
             //     .replace(/\$asciinema\([^\)\(]+\)/g, match => {

@@ -19,6 +19,7 @@ class NoteFormatter
     const STATE = "./resources/note-format/state.json";
     const REPOSITORY = "./resources/note-format/repository.json";
     const OUT  = "./resources/note-format/note-format.out.js";
+    const COMMON_JS = "./resources/note-format/src/common.js";
 
 
     public function getRepository() {
@@ -38,7 +39,7 @@ class NoteFormatter
     }
 
     public function writeToOutput() {
-        $out = "const formatters=[";
+        $out = File::get(NoteFormatter::COMMON_JS)."\nconst formatters=[";
         foreach ($this->state->installed as $installed) {
             $out .= sprintf("%s,", File::get($this::DIR.$this->repo[$installed]->src));
         }

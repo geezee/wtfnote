@@ -1,7 +1,53 @@
-const formatters=[function(note) {
-    note.html = 'this is markdown';
+function getConfig(key, def) {
+    if (typeof window.noteFormatConfig === 'undefined') {
+        window.noteFormatConfig = {};
+        return def;
+    }
+    const val = window.noteFormatConfig[key];
+    return val === undefined ? def : val;
+}
 
-    return note;
+function setConfig(key, val) {
+    if (typeof window.noteFormatConfig === 'undefined') {
+        window.noteFormatConfig = {};
+    }
+    window.noteFormatConfig[key] = val;
+}
+
+function loadScript(name, src) {
+    const isLoaded = getConfig(name+'.loaded', false);
+
+    return new Promise((resolve, reject) => {
+        if (isLoaded) {
+            if (typeof resolve === 'function') {
+                resolve();
+                return;
+            }
+        }
+
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = src;
+
+        script.onload = _ => {
+            window.SHOWDOWN_LOADED = true;
+            setConfig(name+'.loaded', true);
+            if (typeof resolve === 'function') {
+                resolve();
+            }
+        }
+
+        document.body.appendChild(script);
+    });
+}
+
+
+
+const formatters=[function (body) {
+    return loadScript('showdown', 'js/showdown.min.js')
+    .then(() => {
+        return new showdown.Converter().makeHtml(body);
+    });
 }
 ,]
 
@@ -48,10 +94,14 @@ const SelectedNote = {
             state.selectedNote = makeEmptyNote(),
 
         RENDER_SELECTED_NOTE: state => {
-            state.selectedNote.html = state.selectedNote.body;
-            state.selectedNote = formatters.reduce(function(note, formatter) {
-                return formatter(note);
-            }, state.selectedNote);
+            // chain all the formatters so one feeds its body to the other
+            formatters.reduce((promise, formatter) =>
+                promise.then(body => formatter(body, state.selectedNote)),
+              Promise.resolve(state.selectedNote.body))
+            // then set the html property
+            .then(html => {
+                Vue.set(state.selectedNote, 'html', html);
+            });
             // state.selectedNote.html = new showdown.Converter()
             //     .makeHtml(state.selectedNote.body)
             //     .replace(/\$asciinema\([^\)\(]+\)/g, match => {
