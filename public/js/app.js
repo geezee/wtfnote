@@ -1,3 +1,70 @@
+function getConfig(key, def) {
+    if (typeof window.noteFormatConfig === 'undefined') {
+        window.noteFormatConfig = {};
+        return def;
+    }
+    const val = window.noteFormatConfig[key];
+    return val === undefined ? def : val;
+}
+
+function setConfig(key, val) {
+    if (typeof window.noteFormatConfig === 'undefined') {
+        window.noteFormatConfig = {};
+    }
+    window.noteFormatConfig[key] = val;
+}
+
+function loadScript(name, src) {
+    console.log('NoteFormat requesting', name, src);
+
+    const isLoaded = getConfig(name+'.loaded', false);
+
+    return new Promise((resolve, reject) => {
+        if (isLoaded) {
+            console.log('NoteFormat script already loaded', name);
+            if (typeof resolve === 'function') {
+                resolve();
+                return;
+            }
+        }
+
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = src;
+
+        script.onload = _ => {
+            console.log('NoteFormat loaded', name);
+            window.SHOWDOWN_LOADED = true;
+            setConfig(name+'.loaded', true);
+            if (typeof resolve === 'function') {
+                resolve();
+            }
+        }
+
+        document.body.appendChild(script);
+    });
+}
+
+
+
+const formatters=[function (body) {
+    return loadScript('showdown', 'js/showdown.min.js')
+    .then(() => {
+        return new showdown.Converter().makeHtml(body);
+    });
+}
+,function (body) {
+    var sandbox = document.createElement('div');
+    sandbox.innerHTML = body;
+
+    Array.from(sandbox.querySelectorAll('iframe')).forEach(iframe => {
+        iframe.sandbox = 'allow-scripts allow-same-origin allow-forms';
+    });
+
+    return Promise.resolve(sandbox.innerHTML);
+}
+,]
+
 function makeEmptyNote() {
     return {
         id: 0,
@@ -40,14 +107,16 @@ const SelectedNote = {
         DESELECT_NOTE: state =>
             state.selectedNote = makeEmptyNote(),
 
-        RENDER_SELECTED_NOTE: state =>
-            state.selectedNote.html = new showdown.Converter()
-                .makeHtml(state.selectedNote.body)
-                .replace(/\$asciinema\([^\)\(]+\)/g, match => {
-                    var filename = match.substring(11).slice(0, -1);
-                    var path = ['./attachments', store.getters.getSelection.id, filename].join('/');
-                    return `<asciinema-player src="${path}"></asciinema-player>`;
-                }),
+        RENDER_SELECTED_NOTE: state => {
+            // chain all the formatters so one feeds its body to the other
+            formatters.reduce((promise, formatter) =>
+                promise.then(body => formatter(body, state.selectedNote)),
+              Promise.resolve(state.selectedNote.body))
+            // then set the html property
+            .then(html => {
+                Vue.set(state.selectedNote, 'html', html);
+            });
+        },
 
         REMOVE_ATTACHMENT: (state, index) =>
             Vue.delete(this.selectedNote.attachments, index),
@@ -131,7 +200,6 @@ const SelectedNote = {
             state.editing = false;
             state.versioning = false;
             commit('RENDER_SELECTED_NOTE');
-            dispatch('RENDER_MATHJAX');
         }
     }
 
@@ -423,6 +491,8 @@ const Attachments = {
 
 
 
+//
+
 
 
 
@@ -477,10 +547,6 @@ SELECT_FIRST_NOTE: ({ state, commit, dispatch }) =>
     state.notes.length > 0 ?
         dispatch('SELECT_NOTE', state.notes[0]) :
         commit('DESELECT_NOTE'),
-
-
-RENDER_MATHJAX: ctx =>
-    Vue.nextTick(_ => MathJax.Hub.Queue(["Typeset", MathJax.Hub])),
 
 
 CREATE_NOTE: ({ state, commit, dispatch }) =>

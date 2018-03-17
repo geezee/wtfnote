@@ -26,14 +26,16 @@ const SelectedNote = {
         DESELECT_NOTE: state =>
             state.selectedNote = makeEmptyNote(),
 
-        RENDER_SELECTED_NOTE: state =>
-            state.selectedNote.html = new showdown.Converter()
-                .makeHtml(state.selectedNote.body)
-                .replace(/\$asciinema\([^\)\(]+\)/g, match => {
-                    var filename = match.substring(11).slice(0, -1);
-                    var path = ['./attachments', store.getters.getSelection.id, filename].join('/');
-                    return `<asciinema-player src="${path}"></asciinema-player>`;
-                }),
+        RENDER_SELECTED_NOTE: state => {
+            // chain all the formatters so one feeds its body to the other
+            formatters.reduce((promise, formatter) =>
+                promise.then(body => formatter(body, state.selectedNote)),
+              Promise.resolve(state.selectedNote.body))
+            // then set the html property
+            .then(html => {
+                Vue.set(state.selectedNote, 'html', html);
+            });
+        },
 
         REMOVE_ATTACHMENT: (state, index) =>
             Vue.delete(this.selectedNote.attachments, index),
@@ -117,7 +119,6 @@ const SelectedNote = {
             state.editing = false;
             state.versioning = false;
             commit('RENDER_SELECTED_NOTE');
-            dispatch('RENDER_MATHJAX');
         }
     }
 
