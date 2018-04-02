@@ -7,6 +7,7 @@ function makeEmptyNote() {
         attachments: [],
         versions: [],
         isPinned: false,
+        number_versions: 0,
         visible: true,
     };
 }

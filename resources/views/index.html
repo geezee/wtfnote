@@ -175,11 +175,11 @@
               <div class="row versioning" v-show="isVersioning" style="display: none">
                 <div class="col-4 text-right label">
                   {{ selectionVersion.createdAt }}
-                  ({{ parseInt(versionNumber) + 1 }}/{{ selection.versions.length }})
+                  ({{ parseInt(versionNumber) + 1 }}/{{ selection.number_versions }})
                 </div>
                 <div class="col-4">
                   <input type="range" min="0" class="form-control"
-                         v-bind:max="selection.versions.length-1"
+                         v-bind:max="selection.number_versions - 1"
                          v-bind:value="versionNumber"
                          v-on:input="e => store.dispatch('CHANGE_VERSION', e.target.value)"
                          class="form-control">
@@ -250,6 +250,7 @@
     <script src="js/vuex.js"></script>
     <script src="js/vue-resource.js"></script>
     <script src="js/vuex-logger.js"></script>
+    <script src="js/elmo-diff.js"></script>
 
     <script src="js/app.js"></script>
   </body>

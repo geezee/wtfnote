@@ -53,6 +53,25 @@ const SelectedNote = {
             && state.selectedNote.versions.length > 0) ?
                 state.selectedNote.versions[state.versionNumber] :
                 { createdAt: '', body: '' },
+
+        getSelectedNoteVersion: state => {
+            return index => new Promise((resolve, reject) => {
+                if (index < state.selectedNote.number_versions) {
+                    let noteId = state.selectedNote.id;
+                    if (!(index in state.selectedNote.versions)) {
+                        Vue.http.get(`./api/note/${noteId}/version/${index}`)
+                            .then(request => {
+                                state.selectedNote.versions[index] = request.body;
+                                resolve();
+                            }, reject);
+                    } else {
+                        resolve(state.selectedNote.versions[index]);
+                    }
+                } else {
+                    reject();
+                }
+            });
+        }
     },
 
     actions: {
@@ -91,11 +110,13 @@ const SelectedNote = {
                     }, reject);
             }),
 
-        CHANGE_VERSION ({ state, commit }, version) {
-            if (version < state.selectedNote.versions.length) {
-                state.versionNumber = version;
-                commit('UPDATE_BODY');
-            }
+        CHANGE_VERSION: ({ state, getters, commit }, version) => {
+            console.log(getters.getSelectedNoteVersion);
+            getters.getSelectedNoteVersion(version)
+                .then(versionObj => {
+                    state.versionNumber = version;
+                    commit('UPDATE_BODY');
+                });
         },
 
         RESTORE_VERSION: ({ state, commit }) =>

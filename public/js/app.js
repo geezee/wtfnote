@@ -61,6 +61,7 @@ function makeEmptyNote() {
         attachments: [],
         versions: [],
         isPinned: false,
+        number_versions: 0,
         visible: true,
     };
 }
@@ -104,6 +105,23 @@ const SelectedNote = {
             createdAt: '',
             body: ''
         },
+        getSelectedNoteVersion: state => {
+            return index => new Promise((resolve, reject) => {
+                if (index < state.selectedNote.number_versions) {
+                    let noteId = state.selectedNote.id;
+                    if (!(index in state.selectedNote.versions)) {
+                        Vue.http.get(`./api/note/${noteId}/version/${index}`).then(request => {
+                            state.selectedNote.versions[index] = request.body;
+                            resolve();
+                        }, reject);
+                    } else {
+                        resolve(state.selectedNote.versions[index]);
+                    }
+                } else {
+                    reject();
+                }
+            });
+        }
     },
     actions: {
         TOGGLE_PIN_SELECTED_NOTE: ({
@@ -144,14 +162,16 @@ const SelectedNote = {
                 if (typeof resolve === "function") resolve();
             }, reject);
         }),
-        CHANGE_VERSION({
+        CHANGE_VERSION: ({
             state,
+            getters,
             commit
-        }, version) {
-            if (version < state.selectedNote.versions.length) {
+        }, version) => {
+            console.log(getters.getSelectedNoteVersion);
+            getters.getSelectedNoteVersion(version).then(versionObj => {
                 state.versionNumber = version;
                 commit('UPDATE_BODY');
-            }
+            });
         },
         RESTORE_VERSION: ({
             state,
@@ -187,6 +207,7 @@ const AutoSave = {
         tagsDirty: false,
         bodyDirty: false,
         body: '',
+        originalBody: '',
         delay: 5000,
         saving: false,
         timer: null,
@@ -211,7 +232,26 @@ const AutoSave = {
             let modNote = {};
             if (state.titleDirty) modNote.title = getters.getSelection.title;
             if (state.tagsDirty) modNote.tag = getters.getSelection.tags;
-            if (state.bodyDirty) modNote.body = state.body;
+            // store the diff if it saves more space
+            if (state.bodyDirty) {
+                // modNote.body = JSON.stringify({
+                //     diff: false,
+                //     text: state.body
+                // });
+                // if (getters.getSelection.versions.length % 5 > 0) {
+                //     console.log(">> diffing ", getters.getSelection.versions[0].body, state.body);
+                //     const diff = Diff.diff(getters.getSelection.versions[0].body, state.body);
+                //     console.log(">> diff: " + diff);
+                //     console.log(">> ", diff.length, state.body.length);
+                //     if (diff.length < state.body.length) {
+                //         modNote.body = JSON.stringify({
+                //             diff: true,
+                //             text: diff
+                //         });
+                //     }
+                // }
+                modNote.body = state.body;
+            }
             return modNote;
         },
         getLastSaved: (state, getters) => getters.hasSelection && getters.getSelection.versions.length > 0 ? getters.getSelection.versions[0].createdAt : '',
@@ -234,6 +274,7 @@ const AutoSave = {
         },
         SAVE_BODY: ({
             state,
+            getters,
             dispatch
         }, body) => {
             state.bodyDirty = true;
@@ -575,7 +616,11 @@ const store = new Vuex.Store({
         ADD_VERSION_NOTE: (state, {
             noteId,
             version
-        }) => state.notes.filter(note => note.id == noteId)[0].versions.splice(0, 0, version),
+        }) => {
+            const note = state.notes.filter(note => note.id == noteId)[0];
+            note.versions.splice(0, 0, version);
+            note.number_versions++;
+        },
         REMOVE_NOTE_ATTACHMENT: (state, {
             noteId,
             index
