@@ -42,11 +42,10 @@ const AutoSave = {
                     text: state.body
                 });
 
-                if (getters.getSelection.versions.length % 5 > 0) {
+                if (getters.getSelection.number_versions % 5 > 0) {
                     const diff = Diff.diff(getters.getSelection.versions[0].body, state.body);
-                    console.log("diffing result", diff.length, state.body.length);
+                    console.log("diffing result", diff.length*100/state.body.length);
                     if (diff.length < state.body.length) {
-                        console.log("will use diff");
                         modNote.body = JSON.stringify({
                             diff: true,
                             text: diff

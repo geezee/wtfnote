@@ -67,13 +67,11 @@ function makeEmptyNote() {
 }
 
 function resolveVersion(versions, version) {
-    console.log("resolving diff");
-    const body = JSON.parse(version.body);
-    if (body.diff) {
-        version.body = Diff.apply(versions[0].body, body.text)
-    } else {
-        version.body = body.text;
-    }
+    try {
+        const body = JSON.parse(version.body);
+        body.diff && console.log("resolving diff");
+        version.body = body.diff ? Diff.apply(versions[0].body, body.text) : body.text;
+    } catch {}
     versions.splice(0, 0, version);
     return versions;
 }
@@ -251,11 +249,10 @@ const AutoSave = {
                     diff: false,
                     text: state.body
                 });
-                if (getters.getSelection.versions.length % 5 > 0) {
+                if (getters.getSelection.number_versions % 5 > 0) {
                     const diff = Diff.diff(getters.getSelection.versions[0].body, state.body);
-                    console.log("diffing result", diff.length, state.body.length);
+                    console.log("diffing result", diff.length * 100 / state.body.length);
                     if (diff.length < state.body.length) {
-                        console.log("will use diff");
                         modNote.body = JSON.stringify({
                             diff: true,
                             text: diff
