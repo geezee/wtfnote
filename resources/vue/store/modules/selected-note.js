@@ -128,6 +128,7 @@ const SelectedNote = {
                 }).then(response => {
                     state.selectedNote.versions.splice(0, version);
                     state.versionNumber = 0;
+                    state.selectedNote.number_versions -= parseInt(version);
                     commit('UPDATE_BODY');
                     if (typeof resolve === "function") resolve();
                 }, reject);
