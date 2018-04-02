@@ -4,6 +4,7 @@ LOAD_NOTES: ({ commit, state }) =>
             .then(request => {
                 state.notes = request.body.map(note => {
                     note.visible = true;  
+                    note.versions = note.versions.reverse().reduce(resolveVersion, [], note.versions);
                     note.body = note.versions.length == 0 ? '' : note.versions[0].body;
                     return note;
                 });

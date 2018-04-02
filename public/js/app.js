@@ -65,6 +65,18 @@ function makeEmptyNote() {
         visible: true,
     };
 }
+
+function resolveVersion(versions, version) {
+    console.log("resolving diff");
+    const body = JSON.parse(version.body);
+    if (body.diff) {
+        version.body = Diff.apply(versions[0].body, body.text)
+    } else {
+        version.body = body.text;
+    }
+    versions.splice(0, 0, version);
+    return versions;
+}
 const SelectedNote = {
     state: {
         selectedNote: makeEmptyNote(),
@@ -209,7 +221,7 @@ const AutoSave = {
         bodyDirty: false,
         body: '',
         originalBody: '',
-        delay: 5000,
+        delay: 1000,
         saving: false,
         timer: null,
     },
@@ -235,23 +247,21 @@ const AutoSave = {
             if (state.tagsDirty) modNote.tag = getters.getSelection.tags;
             // store the diff if it saves more space
             if (state.bodyDirty) {
-                // modNote.body = JSON.stringify({
-                //     diff: false,
-                //     text: state.body
-                // });
-                // if (getters.getSelection.versions.length % 5 > 0) {
-                //     console.log(">> diffing ", getters.getSelection.versions[0].body, state.body);
-                //     const diff = Diff.diff(getters.getSelection.versions[0].body, state.body);
-                //     console.log(">> diff: " + diff);
-                //     console.log(">> ", diff.length, state.body.length);
-                //     if (diff.length < state.body.length) {
-                //         modNote.body = JSON.stringify({
-                //             diff: true,
-                //             text: diff
-                //         });
-                //     }
-                // }
-                modNote.body = state.body;
+                modNote.body = JSON.stringify({
+                    diff: false,
+                    text: state.body
+                });
+                if (getters.getSelection.versions.length % 5 > 0) {
+                    const diff = Diff.diff(getters.getSelection.versions[0].body, state.body);
+                    console.log("diffing result", diff.length, state.body.length);
+                    if (diff.length < state.body.length) {
+                        console.log("will use diff");
+                        modNote.body = JSON.stringify({
+                            diff: true,
+                            text: diff
+                        });
+                    }
+                }
             }
             return modNote;
         },
@@ -518,6 +528,7 @@ const store = new Vuex.Store({
             Vue.http.get("./api/note/all?__nocache=" + Math.random()).then(request => {
                 state.notes = request.body.map(note => {
                     note.visible = true;
+                    note.versions = note.versions.reverse().reduce(resolveVersion, [], note.versions);
                     note.body = note.versions.length == 0 ? '' : note.versions[0].body;
                     return note;
                 });
@@ -619,7 +630,7 @@ const store = new Vuex.Store({
             version
         }) => {
             const note = state.notes.filter(note => note.id == noteId)[0];
-            note.versions.splice(0, 0, version);
+            resolveVersion(note.versions, version);
             note.number_versions++;
         },
         REMOVE_NOTE_ATTACHMENT: (state, {

@@ -27,7 +27,7 @@ REMOVE_NOTE: (state, id) =>
 
 ADD_VERSION_NOTE: (state, { noteId, version }) => {
     const note = state.notes.filter(note => note.id == noteId)[0];
-    note.versions.splice(0, 0, version);
+    resolveVersion(note.versions, version);
     note.number_versions++;
 },
 

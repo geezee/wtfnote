@@ -7,7 +7,7 @@ const AutoSave = {
         body: '',
         originalBody: '',
 
-        delay: 5000,
+        delay: 1000,
         saving: false,
         timer: null,
     },
@@ -37,25 +37,22 @@ const AutoSave = {
 
             // store the diff if it saves more space
             if (state.bodyDirty) {
-                // modNote.body = JSON.stringify({
-                //     diff: false,
-                //     text: state.body
-                // });
+                modNote.body = JSON.stringify({
+                    diff: false,
+                    text: state.body
+                });
 
-                // if (getters.getSelection.versions.length % 5 > 0) {
-                //     console.log(">> diffing ", getters.getSelection.versions[0].body, state.body);
-                //     const diff = Diff.diff(getters.getSelection.versions[0].body, state.body);
-                //     console.log(">> diff: " + diff);
-                //     console.log(">> ", diff.length, state.body.length);
-                //     if (diff.length < state.body.length) {
-                //         modNote.body = JSON.stringify({
-                //             diff: true,
-                //             text: diff
-                //         });
-                //     }
-                // }
-
-                modNote.body = state.body;
+                if (getters.getSelection.versions.length % 5 > 0) {
+                    const diff = Diff.diff(getters.getSelection.versions[0].body, state.body);
+                    console.log("diffing result", diff.length, state.body.length);
+                    if (diff.length < state.body.length) {
+                        console.log("will use diff");
+                        modNote.body = JSON.stringify({
+                            diff: true,
+                            text: diff
+                        });
+                    }
+                }
             }
 
             return modNote;
