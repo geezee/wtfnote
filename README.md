@@ -39,7 +39,7 @@ the release of 1.0-beta.
   attachment system*.
 * Use websocket instead of a RESTful API (will keep the RESTful interface).
 * Support for concurrency.
-* Store note history as diffs.
+* ~~Store note history as diffs.~~
 * Syntax Highlighting in notes.
 * ~~Plugin management tool~~.
 

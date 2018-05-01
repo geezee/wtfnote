@@ -15,7 +15,6 @@ function makeEmptyNote() {
 function resolveVersion(versions, version) {
     try {
         const body = JSON.parse(version.body);
-        body.diff && console.log("resolving diff");
         version.body = body.diff ?
             Diff.apply(versions[0].body, body.text) : body.text;
     } catch { }

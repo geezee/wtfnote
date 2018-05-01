@@ -69,7 +69,6 @@ function makeEmptyNote() {
 function resolveVersion(versions, version) {
     try {
         const body = JSON.parse(version.body);
-        body.diff && console.log("resolving diff");
         version.body = body.diff ? Diff.apply(versions[0].body, body.text) : body.text;
     } catch {}
     versions.splice(0, 0, version);
@@ -525,15 +524,25 @@ const store = new Vuex.Store({
             Vue.http.get("./api/note/all?__nocache=" + Math.random()).then(request => {
                 state.notes = request.body.map(note => {
                     note.visible = true;
-                    note.versions = note.versions.reverse().reduce(resolveVersion, [], note.versions);
+                    note.versions.reverse();
+                    // to resolve the diffs we need to start from the first
+                    // note that is not diffed
+                    let firstNonDiff;
+                    note.versions.find((version, index) => {
+                        firstNonDiff = index;
+                        try {
+                            return !JSON.parse(version.body).diff;
+                        } catch (e) {
+                            return true;
+                        }
+                    });
+                    note.versions = note.versions.slice(firstNonDiff).reduce(resolveVersion, [], note.versions);
                     note.body = note.versions.length == 0 ? '' : note.versions[0].body;
                     return note;
                 });
                 commit('SORT_NOTES');
                 resolve();
-            }, error => {
-                reject(error);
-            });
+            }, reject);
         }),
         SELECT_NOTE: ({
             commit,
