@@ -68,24 +68,28 @@ const SelectedNote = {
                         resolve(request.body);
                     }, reject);
            } else {
-                resolve(state.selectedNote.versions[index]);
+               resolve(state.selectedNote.versions[index]);
             }
         }),
 
         getSelectedNoteVersion: (state, getters) => index => new Promise((resolve, reject) => {
             return getters._getVersion(index).then((versionObj, existed) => {
                 let versionBody = { diff: false, body: versionObj.body }
-                try { versionBody = JSON.parse(versionObj.body); } catch(e) {}
+                try {
+                    versionBody = JSON.parse(versionObj.body);
+                    versionBody.body = versionBody.text;
+                } catch {}
 
                 if (versionBody.diff) {
                     getters.getSelectedNoteVersion(parseInt(index)+1).then(previousObj => {
                         let previousBody = previousObj.body;
-                        try { previousBody = JSON.parse(previousObj.body).text; } catch(e) {}
-                        state.selectedNote.versions[index].body = Diff.apply(previousBody, versionBody.text);
+                        try { previousBody = JSON.parse(previousObj.body).text; } catch {}
+                        state.selectedNote.versions[index].body = Diff.apply(previousBody, versionBody.body);
                         resolve(state.selectedNote.versions[index]);
                     }, reject);
                 } else {
-                    resolve(versionObj);
+                    state.selectedNote.versions[index].body = versionBody.body;
+                    resolve(state.selectedNote.versions[index]);
                 }
             }, reject);
         }),

@@ -137,18 +137,20 @@ const SelectedNote = {
                 }
                 try {
                     versionBody = JSON.parse(versionObj.body);
-                } catch (e) {}
+                    versionBody.body = versionBody.text;
+                } catch {}
                 if (versionBody.diff) {
                     getters.getSelectedNoteVersion(parseInt(index) + 1).then(previousObj => {
                         let previousBody = previousObj.body;
                         try {
                             previousBody = JSON.parse(previousObj.body).text;
-                        } catch (e) {}
-                        state.selectedNote.versions[index].body = Diff.apply(previousBody, versionBody.text);
+                        } catch {}
+                        state.selectedNote.versions[index].body = Diff.apply(previousBody, versionBody.body);
                         resolve(state.selectedNote.versions[index]);
                     }, reject);
                 } else {
-                    resolve(versionObj);
+                    state.selectedNote.versions[index].body = versionBody.body;
+                    resolve(state.selectedNote.versions[index]);
                 }
             }, reject);
         }),
