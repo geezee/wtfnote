@@ -24,15 +24,28 @@ class ApiController extends Controller
                 'isPinned' => (bool) $note->isPinned,
                 'tags' => $note->tags->pluck('title'),
                 'attachments' => $note->attachments->pluck('uri'),
+                'number_versions' => $note->versions()->count(),
                 'versions' => $note->versions()->orderBy('createdAt', 'desc')
-                    ->get()->map(function($version) {
+                    ->take(5)->get()->flatMap(function($version, $i) {
                         return [
-                            'body' => $version->body,
-                            'createdAt' => $version->createdAt
+                            $i => [
+                                'body' => $version->body,
+                                'createdAt' => $version->createdAt
+                            ]
                         ];
                 })
             ];
         }));
+    }
+
+
+    public function getVersion($noteId, $versionIndex) {
+        $note = App\Note::find($noteId);
+        if (is_null($note)) {
+            return response()->json(makeError('Note does not exist'));
+        }
+        return response()->json($note->versions()->orderBy('createdAt', 'desc')
+            ->skip($versionIndex)->take(1)->get([ 'createdAt', 'body' ])->first());
     }
 
 

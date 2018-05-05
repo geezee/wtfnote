@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 Route::group(['middleware' => ['web']], function() {
     Route::get('/note/all', 'ApiController@getAllNotes');
     Route::get('/note/create', 'ApiController@create');
+    Route::get('/note/{id}/version/{number}', 'ApiController@getVersion');
     Route::get('/note/{id}/delete', 'ApiController@delete');
     Route::post('/note/{id}/setPin', 'ApiController@setPin');
     Route::post('/note/{id}/update', 'ApiController@update');

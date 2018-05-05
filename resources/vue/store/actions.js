@@ -4,14 +4,25 @@ LOAD_NOTES: ({ commit, state }) =>
             .then(request => {
                 state.notes = request.body.map(note => {
                     note.visible = true;  
+                    note.versions.reverse();
+
+                    // to resolve the diffs we need to start from the first
+                    // note that is not diffed
+                    let firstNonDiff;
+                    note.versions.find((version, index) => {
+                        firstNonDiff = index;
+                        try { return !JSON.parse(version.body).diff; }
+                        catch(e) { return true; }
+                    });
+
+                    note.versions = note.versions.slice(firstNonDiff)
+                        .reduce(resolveVersion, [], note.versions);
                     note.body = note.versions.length == 0 ? '' : note.versions[0].body;
                     return note;
                 });
                 commit('SORT_NOTES');
                 resolve();
-            }, error => {
-                reject(error);
-            });
+            }, reject);
     }),
 
 

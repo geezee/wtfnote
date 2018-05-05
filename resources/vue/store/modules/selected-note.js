@@ -53,6 +53,54 @@ const SelectedNote = {
             && state.selectedNote.versions.length > 0) ?
                 state.selectedNote.versions[state.versionNumber] :
                 { createdAt: '', body: '' },
+
+        /*
+         * Returns a promise whose resolving function takes a raw (diff unresolved)
+         * version of the provided index
+         */
+        _getVersion: (state, getters) => index => new Promise((resolve, reject) => {
+            if (index >= state.selectedNote.number_versions) {
+                reject();
+                return;
+            }
+
+            if (!(index in state.selectedNote.versions)) {
+                let noteId = state.selectedNote.id;
+                Vue.http.get(`./api/note/${noteId}/version/${index}`)
+                    .then(request => {
+                        state.selectedNote.versions[index] = request.body;
+                        resolve(request.body);
+                    }, reject);
+           } else {
+               resolve(state.selectedNote.versions[index]);
+            }
+        }),
+
+        /**
+         * Returns a promise whose resolving function takes a version (with its
+         * content correctly diffed) of the provided index
+         */
+        getSelectedNoteVersion: (state, getters) => index => new Promise((resolve, reject) => {
+            return getters._getVersion(index).then((versionObj, existed) => {
+                let versionBody = { diff: false, body: versionObj.body }
+                try {
+                    versionBody = JSON.parse(versionObj.body);
+                    versionBody.body = versionBody.text;
+                } catch {}
+
+                if (versionBody.diff) {
+                    getters.getSelectedNoteVersion(parseInt(index)+1).then(previousObj => {
+                        let previousBody = previousObj.body;
+                        try { previousBody = JSON.parse(previousObj.body).text; } catch {}
+                        state.selectedNote.versions[index].body = Diff.apply(previousBody, versionBody.body);
+                        resolve(state.selectedNote.versions[index]);
+                    }, reject);
+                } else {
+                    state.selectedNote.versions[index].body = versionBody.body;
+                    resolve(state.selectedNote.versions[index]);
+                }
+            }, reject);
+        }),
     },
 
     actions: {
@@ -91,11 +139,12 @@ const SelectedNote = {
                     }, reject);
             }),
 
-        CHANGE_VERSION ({ state, commit }, version) {
-            if (version < state.selectedNote.versions.length) {
-                state.versionNumber = version;
-                commit('UPDATE_BODY');
-            }
+        CHANGE_VERSION: ({ state, getters, commit }, version) => {
+            getters.getSelectedNoteVersion(version)
+                .then(_ => {
+                    state.versionNumber = version;
+                    commit('UPDATE_BODY');
+                });
         },
 
         RESTORE_VERSION: ({ state, commit }) =>
@@ -107,6 +156,7 @@ const SelectedNote = {
                 }).then(response => {
                     state.selectedNote.versions.splice(0, version);
                     state.versionNumber = 0;
+                    state.selectedNote.number_versions -= parseInt(version);
                     commit('UPDATE_BODY');
                     if (typeof resolve === "function") resolve();
                 }, reject);
