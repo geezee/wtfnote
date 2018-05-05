@@ -73,7 +73,7 @@ const AutoSave = {
             state.tagsDirty = true;
             return dispatch('SAVE');
         },
-        SAVE_BODY: ({ state, getters, dispatch }, body) => {
+        SAVE_BODY: ({ state, dispatch }, body) => {
             state.bodyDirty = true;
             state.body = body;
             return dispatch('SAVE');

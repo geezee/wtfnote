@@ -114,6 +114,10 @@ const SelectedNote = {
             createdAt: '',
             body: ''
         },
+        /*
+         * Returns a promise whose resolving function takes a raw (diff unresolved)
+         * version of the provided index
+         */
         _getVersion: (state, getters) => index => new Promise((resolve, reject) => {
             if (index >= state.selectedNote.number_versions) {
                 reject();
@@ -129,6 +133,10 @@ const SelectedNote = {
                 resolve(state.selectedNote.versions[index]);
             }
         }),
+        /**
+         * Returns a promise whose resolving function takes a version (with its
+         * content correctly diffed) of the provided index
+         */
         getSelectedNoteVersion: (state, getters) => index => new Promise((resolve, reject) => {
             return getters._getVersion(index).then((versionObj, existed) => {
                 let versionBody = {
@@ -303,7 +311,6 @@ const AutoSave = {
         },
         SAVE_BODY: ({
             state,
-            getters,
             dispatch
         }, body) => {
             state.bodyDirty = true;
