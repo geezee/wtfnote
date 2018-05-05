@@ -54,24 +54,41 @@ const SelectedNote = {
                 state.selectedNote.versions[state.versionNumber] :
                 { createdAt: '', body: '' },
 
-        getSelectedNoteVersion: state => {
-            return index => new Promise((resolve, reject) => {
-                if (index < state.selectedNote.number_versions) {
-                    let noteId = state.selectedNote.id;
-                    if (!(index in state.selectedNote.versions)) {
-                        Vue.http.get(`./api/note/${noteId}/version/${index}`)
-                            .then(request => {
-                                state.selectedNote.versions[index] = request.body;
-                                resolve();
-                            }, reject);
-                    } else {
+        _getVersion: (state, getters) => index => new Promise((resolve, reject) => {
+            if (index >= state.selectedNote.number_versions) {
+                reject();
+                return;
+            }
+
+            if (!(index in state.selectedNote.versions)) {
+                let noteId = state.selectedNote.id;
+                Vue.http.get(`./api/note/${noteId}/version/${index}`)
+                    .then(request => {
+                        state.selectedNote.versions[index] = request.body;
+                        resolve(request.body);
+                    }, reject);
+           } else {
+                resolve(state.selectedNote.versions[index]);
+            }
+        }),
+
+        getSelectedNoteVersion: (state, getters) => index => new Promise((resolve, reject) => {
+            return getters._getVersion(index).then((versionObj, existed) => {
+                let versionBody = { diff: false, body: versionObj.body }
+                try { versionBody = JSON.parse(versionObj.body); } catch(e) {}
+
+                if (versionBody.diff) {
+                    getters.getSelectedNoteVersion(parseInt(index)+1).then(previousObj => {
+                        let previousBody = previousObj.body;
+                        try { previousBody = JSON.parse(previousObj.body).text; } catch(e) {}
+                        state.selectedNote.versions[index].body = Diff.apply(previousBody, versionBody.text);
                         resolve(state.selectedNote.versions[index]);
-                    }
+                    }, reject);
                 } else {
-                    reject();
+                    resolve(versionObj);
                 }
-            });
-        }
+            }, reject);
+        }),
     },
 
     actions: {
@@ -111,9 +128,8 @@ const SelectedNote = {
             }),
 
         CHANGE_VERSION: ({ state, getters, commit }, version) => {
-            console.log(getters.getSelectedNoteVersion);
             getters.getSelectedNoteVersion(version)
-                .then(versionObj => {
+                .then(_ => {
                     state.versionNumber = version;
                     commit('UPDATE_BODY');
                 });

@@ -15,7 +15,8 @@ LOAD_NOTES: ({ commit, state }) =>
                         catch(e) { return true; }
                     });
 
-                    note.versions = note.versions.slice(firstNonDiff).reduce(resolveVersion, [], note.versions);
+                    note.versions = note.versions.slice(firstNonDiff)
+                        .reduce(resolveVersion, [], note.versions);
                     note.body = note.versions.length == 0 ? '' : note.versions[0].body;
                     return note;
                 });
