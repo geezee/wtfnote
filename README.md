@@ -1,4 +1,5 @@
-# WTFNote v0.2.0
+# WTFNote v0.2
+
 WTFNote is meant to be a FOSS alterative for Simplenote that can be easily
 self-hosted. WTFNote is built on top of Laravel 5.5 and uses MySQL as a
 database. For the front-end WTFNote uses bootstrap and VueJS.
@@ -11,7 +12,7 @@ the release of 1.0-beta.
 
 # Features
 
-## v0.1.0
+## v0.1
 - Notes have a title, a body, and multiple tags.
 - Notes are autosaved.
 - Notes store their history (scroll back through the history of your note)
@@ -31,7 +32,7 @@ the release of 1.0-beta.
       [asciinema](https://asciinema.org).
     - Javascript embedded in the note can be executed and displayed.
 
-## v0.2.0
+## v0.2
 - Notes are compactly stored as diffs (occasionally) using [elmo-diff](https://github.com/geezee/elmo-diff).
 
 ## Milestones for 1.0
